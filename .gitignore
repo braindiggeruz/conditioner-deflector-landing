@@ -5,3 +5,4 @@ bun.lock
 *.backup.*.html
 .env
 .env.*
+!.env.example
