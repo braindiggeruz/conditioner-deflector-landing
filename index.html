@@ -79,7 +79,7 @@
         radial-gradient(ellipse 80% 60% at 100% 0%, rgba(14,165,233,0.18), transparent 60%),
         radial-gradient(ellipse 80% 60% at 0% 100%, rgba(37,99,235,0.12), transparent 60%),
         linear-gradient(180deg, #F8FBFF 0%, #FFFFFF 100%);
-      padding: 20px 18px 30px;
+      padding: 14px 16px 24px;
       overflow: hidden;
     }
     .hero::before {
@@ -96,11 +96,11 @@
       background: #fff;
       border: 1px solid var(--blue-mid);
       color: var(--blue-2);
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 800;
-      padding: 6px 12px 6px 10px;
+      padding: 5px 11px 5px 9px;
       border-radius: 100px;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       box-shadow: var(--shadow-sm);
@@ -116,12 +116,12 @@
       50% { box-shadow: 0 0 0 6px rgba(22,163,74,0.06); }
     }
     .hero h1 {
-      font-size: clamp(28px, 7.5vw, 44px);
+      font-size: clamp(30px, 10.2vw, 44px);
       font-weight: 900;
-      line-height: 1.08;
-      letter-spacing: -0.02em;
+      line-height: 1.04;
+      letter-spacing: -0.025em;
       color: var(--navy);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .hero h1 em {
       font-style: normal;
@@ -131,11 +131,11 @@
       color: transparent;
     }
     .hero p.lead {
-      font-size: 15.5px;
+      font-size: 14.5px;
       color: var(--ink-2);
-      line-height: 1.55;
-      margin-bottom: 18px;
-      max-width: 56ch;
+      line-height: 1.5;
+      margin-bottom: 14px;
+      max-width: 42ch;
     }
 
     /* hero product card */
@@ -146,11 +146,11 @@
       box-shadow: var(--shadow-lg);
       border: 1px solid var(--line);
       overflow: hidden;
-      margin-bottom: 18px;
+      margin-bottom: 0;
     }
     .product-card .ph {
       position: relative;
-      aspect-ratio: 4/3;
+      aspect-ratio: 5/4;
       background: linear-gradient(160deg, #EFF6FF 0%, #DBEAFE 100%);
       overflow: hidden;
     }
@@ -278,22 +278,24 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-top: 6px;
+      margin-top: 14px;
     }
     .hero-pill {
-      display: flex; align-items: center; gap: 9px;
+      display: flex; align-items: center; gap: 8px;
       background: #fff;
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 12.5px;
+      padding: 9px 10px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--navy);
+      line-height: 1.2;
       box-shadow: var(--shadow-sm);
+      white-space: nowrap;
     }
     .hero-pill .ic {
-      width: 30px; height: 30px;
-      border-radius: 9px;
+      width: 26px; height: 26px;
+      border-radius: 8px;
       background: var(--blue-soft);
       color: var(--blue);
       display: inline-flex; align-items: center; justify-content: center;
@@ -887,15 +889,7 @@
     <div class="hero-left">
       <div class="hero-eyebrow"><span class="dot"></span>Mavsumiy yechim · O'zbekiston</div>
       <h1>Konditsioner sovug'i endi <em>yuzingizga urmaydi</em></h1>
-      <p class="lead">Himoya ekrani sovuq havo oqimini yuqoriga buradi — xona soviydi, lekin shamol sizga, bolaga yoki ish joyingizga to'g'ri urmaydi.</p>
-
-      <!-- mini hero pills -->
-      <div class="hero-pills">
-        <div class="hero-pill"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>60–110 sm universal</div>
-        <div class="hero-pill"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>5 daqiqada o'rnatish</div>
-        <div class="hero-pill green"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20M6 15h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Qabul qilganda to'lash</div>
-        <div class="hero-pill"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Usta kerak emas</div>
-      </div>
+      <p class="lead">Himoya ekrani havo oqimini yuqoriga buradi — xona soviydi, lekin shamol sizga to'g'ri urmaydi.</p>
     </div>
 
     <div class="hero-right">
@@ -930,10 +924,18 @@
           </button>
           <div class="microtrust">
             <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Oldindan to'lovsiz</span>
-            <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Mos kelmasa qaytariladi</span>
+            <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Qabul qilganda to'laysiz</span>
           </div>
         </div>
       </article>
+
+      <!-- compact hero pills (below product card on mobile, above on desktop) -->
+      <div class="hero-pills">
+        <div class="hero-pill"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>60–110 sm</div>
+        <div class="hero-pill"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>5 daqiqada</div>
+        <div class="hero-pill"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Usta kerak emas</div>
+        <div class="hero-pill green"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20M6 15h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>To'lov qabulda</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1413,7 +1415,7 @@
 </footer>
 
 <!-- ===== STICKY MOBILE CTA ===== -->
-<div class="sticky" id="stickyCta" data-testid="sticky-cta">
+<div class="sticky" id="stickyCta" data-testid="sticky-cta" style="display:none;">
   <div class="sticky-info">
     <div class="name">Himoya ekrani</div>
     <div class="pay">
@@ -1560,18 +1562,25 @@
     s.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  // Hide sticky when form is visible (so it doesn't cover fields)
-  var io = new IntersectionObserver(function(entries){
-    var sticky = document.getElementById('stickyCta');
-    if (entries[0].isIntersecting) {
-      sticky.style.display = 'none';
-    } else {
-      if (!document.getElementById('formSuccess').classList.contains('show')) {
-        sticky.style.display = 'flex';
-      }
-    }
-  }, { threshold: 0.05 });
-  io.observe(document.getElementById('order'));
+  // Sticky CTA visibility: hidden over hero & form, shown only after hero scrolled past.
+  var sticky = document.getElementById('stickyCta');
+  var heroEl = document.querySelector('.hero');
+  var formSuccess = document.getElementById('formSuccess');
+  var orderEl = document.getElementById('order');
+  var heroVisible = true;
+  var orderVisible = false;
+  function syncSticky() {
+    if (formSuccess.classList.contains('show')) { sticky.style.display = 'none'; return; }
+    sticky.style.display = (heroVisible || orderVisible) ? 'none' : 'flex';
+  }
+  new IntersectionObserver(function(entries){
+    heroVisible = entries[0].isIntersecting;
+    syncSticky();
+  }, { threshold: 0.15 }).observe(heroEl);
+  new IntersectionObserver(function(entries){
+    orderVisible = entries[0].isIntersecting;
+    syncSticky();
+  }, { threshold: 0.05 }).observe(orderEl);
 </script>
 </body>
 </html>
