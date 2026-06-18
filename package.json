@@ -1,0 +1,16 @@
+{
+  "name": "ac-deflector-landing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3457",
+    "start": "vite --host 0.0.0.0 --port 3457",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 3457"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.1.0",
+    "vite": "^7.0.0"
+  }
+}

@@ -1,0 +1,7 @@
+node_modules/
+dist/
+bun.lock
+*.log
+*.backup.*.html
+.env
+.env.*
