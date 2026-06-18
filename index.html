@@ -186,39 +186,39 @@
       box-shadow: 0 6px 18px rgba(22,163,74,0.45);
     }
     .product-card .body {
-      padding: 16px 16px 18px;
+      padding: 14px 14px 16px;
     }
     .product-card .name {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 800;
       color: var(--ink);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       letter-spacing: -0.01em;
     }
     .feat {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px 14px;
-      margin-bottom: 14px;
+      gap: 6px 12px;
+      margin-bottom: 12px;
     }
     .feat li {
       list-style: none;
       display: flex;
       align-items: flex-start;
-      gap: 8px;
-      font-size: 13px;
+      gap: 7px;
+      font-size: 12.5px;
       font-weight: 600;
       color: var(--ink-2);
-      line-height: 1.35;
+      line-height: 1.3;
     }
     .feat li svg { flex-shrink: 0; margin-top: 1px; color: var(--green); }
     .price-line {
       display: flex; align-items: center; justify-content: space-between;
       gap: 10px;
-      padding: 12px 14px;
+      padding: 10px 12px;
       background: var(--bg-2);
-      border-radius: 12px;
-      margin-bottom: 14px;
+      border-radius: 10px;
+      margin-bottom: 12px;
       border: 1px dashed var(--line-2);
     }
     .price-line .lbl { font-size: 11.5px; color: var(--ink-3); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; }
@@ -265,7 +265,7 @@
       justify-content: center;
       gap: 14px;
       flex-wrap: wrap;
-      margin-top: 12px;
+      margin-top: 10px;
       font-size: 12px;
       font-weight: 600;
       color: var(--ink-3);
@@ -902,13 +902,21 @@
         </div>
         <div class="body">
           <div class="name">Konditsioner uchun himoya ekrani</div>
-          <ul class="feat">
+          <button class="btn btn-primary" data-testid="hero-cta" onclick="scrollToOrder(); trackEvent('hero_cta_click','hero')">
+            Menejer qo'ng'iroq qilsin
+            <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="microtrust">
+            <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Oldindan to'lovsiz</span>
+            <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Qabul qilganda to'laysiz</span>
+          </div>
+          <ul class="feat" style="margin-top:14px;">
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>0–90° burchak sozlash</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>ABS-plastik, oq</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Yopishqoq lentalar bilan</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Yechib artish mumkin</li>
           </ul>
-          <div class="price-line">
+          <div class="price-line" style="margin-bottom:0;">
             <div>
               <div class="lbl">Narx</div>
               <div class="val">Operator <span>aniqlashtiradi</span></div>
@@ -917,14 +925,6 @@
               <div class="lbl">Yetkazib berish</div>
               <div class="val">1–3 kun</div>
             </div>
-          </div>
-          <button class="btn btn-primary" data-testid="hero-cta" onclick="scrollToOrder(); trackEvent('hero_cta_click','hero')">
-            Menejer qo'ng'iroq qilsin
-            <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <div class="microtrust">
-            <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Oldindan to'lovsiz</span>
-            <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Qabul qilganda to'laysiz</span>
           </div>
         </div>
       </article>
