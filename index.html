@@ -1660,7 +1660,23 @@
 
     if (!ok) {
       trackEvent('form_submit_error', 'order_form');
-      showFormError("Xatolik yuz berdi. Iltimos, telefon raqamingizni tekshiring yoki keyinroq urinib ko'ring.");
+      // Map server error -> user-friendly message; never leak config/tech details
+      var err = (result && result.error) || '';
+      var msg = "Arizani yuborishda xatolik yuz berdi. Iltimos, birozdan keyin yana urinib ko'ring.";
+      var grp = null;
+      if (err === 'invalid_phone') {
+        msg = "Telefon raqamini to'g'ri kiriting (+998XXXXXXXXX).";
+        grp = document.getElementById('grp-phone');
+      } else if (err === 'invalid_name') {
+        msg = "Iltimos, ismingizni to'liq kiriting.";
+        grp = document.getElementById('grp-name');
+      } else if (err === 'invalid_city') {
+        msg = "Iltimos, shahar yoki viloyatni tanlang.";
+        grp = document.getElementById('grp-city');
+      }
+      // buyo_failed, buyo_config_missing, network, etc. -> generic message (no tech details)
+      if (grp) grp.classList.add('has-error');
+      showFormError(msg);
       return;
     }
 
