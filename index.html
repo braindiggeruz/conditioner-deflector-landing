@@ -1564,8 +1564,10 @@
   var lastSubmitPhone = '';
   var lastSubmitAt = 0;
   function genEventId() {
-    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-    return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+    var rnd = (window.crypto && crypto.getRandomValues)
+      ? Array.from(crypto.getRandomValues(new Uint8Array(8))).map(function(b){return b.toString(16).padStart(2,'0');}).join('')
+      : Math.random().toString(36).slice(2, 18);
+    return 'lead_' + Date.now() + '_' + rnd;
   }
   function setSubmitting(submitting) {
     var btn = document.querySelector('#orderForm button[type="submit"]');
@@ -1634,6 +1636,7 @@
       width: width,
       meta_event_id: eventId,
       page_url: location.href,
+      referrer: document.referrer || '',
       user_agent: navigator.userAgent,
       fbp: readCookie('_fbp'),
       fbc: readCookie('_fbc'),

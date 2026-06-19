@@ -154,11 +154,6 @@ async function sendMetaCapi(env, ev) {
 }
 
 export const onRequestPost = async ({ request, env }) => {
-  // config check
-  if (!env.BUYO_API_KEY || !env.BUYO_FLOW_ID) {
-    return json({ ok: false, error: 'config_missing' }, 500);
-  }
-
   let body;
   try {
     body = await request.json();
@@ -174,6 +169,11 @@ export const onRequestPost = async ({ request, env }) => {
   if (name.length < 2) return json({ ok: false, error: 'invalid_name' }, 400);
   if (!phone) return json({ ok: false, error: 'invalid_phone' }, 400);
   if (!city) return json({ ok: false, error: 'invalid_city' }, 400);
+
+  // config check (after input validation)
+  if (!env.BUYO_API_KEY || !env.BUYO_FLOW_ID) {
+    return json({ ok: false, error: 'buyo_config_missing' }, 500);
+  }
 
   const ip = pickIp(request);
   const ua = request.headers.get('User-Agent') || sanitize(body.user_agent, 500);
@@ -211,7 +211,7 @@ export const onRequestPost = async ({ request, env }) => {
 
   if (!buyo.ok) {
     return json(
-      { ok: false, error: 'buyo_rejected', status: buyo.status, detail: buyo.data?.message || buyo.data?.error || buyo.raw || null },
+      { ok: false, error: 'buyo_failed', status: buyo.status },
       502
     );
   }
@@ -228,9 +228,13 @@ export const onRequestPost = async ({ request, env }) => {
     fbc: sanitize(body.fbc, 200),
   });
 
+  let metaStatus = 'sent';
+  if (meta.skipped) metaStatus = 'skipped_config_missing';
+  else if (!meta.ok) metaStatus = 'failed';
+
   return json({
     ok: true,
     event_id,
-    meta: { sent: !!meta.ok, skipped: !!meta.skipped },
+    meta: metaStatus,
   });
 };
