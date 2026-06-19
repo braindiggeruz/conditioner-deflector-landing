@@ -200,7 +200,10 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ ok: false, error: 'no_client_ip' }, 500);
   }
   const ua = request.headers.get('User-Agent') || sanitize(body.user_agent, 500);
-  const event_id = sanitize(body.meta_event_id, 80) || crypto.randomUUID();
+  // Validate frontend-supplied meta_event_id; never regenerate if it's already valid.
+  const rawEid = sanitize(body.meta_event_id, 80);
+  const VALID_EID = /^[a-zA-Z0-9_-]{8,80}$/;
+  const event_id = VALID_EID.test(rawEid) ? rawEid : crypto.randomUUID();
   const event_source_url = sanitize(body.page_url, 500) || request.headers.get('Referer') || '';
 
   // utm + click ids
@@ -234,14 +237,14 @@ export const onRequestPost = async ({ request, env }) => {
 
   if (!buyo.ok) {
     // safe sanitized server log (no PII, no key)
-    console.log(JSON.stringify({ at: 'buyo_reject', status: buyo.status, reason: buyo.reason }));
+    console.log(JSON.stringify({ stage: 'buyo_rejected', event_id, status: buyo.status, reason: buyo.reason }));
     return json(
       { ok: false, error: buyo.reason || 'buyo_failed' },
       502
     );
   }
   // safe success log (no PII)
-  console.log(JSON.stringify({ at: 'buyo_ok', status: buyo.status, lead_id: buyo.lead_id || null }));
+  console.log(JSON.stringify({ stage: 'buyo_success', event_id, status: buyo.status, buyo_lead_id: buyo.lead_id || null }));
 
   // Meta CAPI (best-effort, never blocks success)
   const phone_hash = await sha256Hex(phone.replace(/\D/g, ''));
@@ -258,6 +261,13 @@ export const onRequestPost = async ({ request, env }) => {
   let metaStatus = 'sent';
   if (meta.skipped) metaStatus = 'skipped_config_missing';
   else if (!meta.ok) metaStatus = 'failed';
+
+  console.log(JSON.stringify({
+    stage: meta.skipped ? 'capi_skipped_config_missing' : (meta.ok ? 'capi_sent' : 'capi_failed'),
+    event_id,
+    buyo_lead_id: buyo.lead_id || null,
+    capi_status: meta.status || null,
+  }));
 
   return json({
     ok: true,

@@ -1628,7 +1628,15 @@
       return;
     }
 
-    var eventId = genEventId();
+    // Reuse pending event ID on retry (network failures) so Meta dedupes properly.
+    // Clear it after confirmed BUYO success, OR when starting a fresh new lead.
+    var pending = '';
+    try { pending = sessionStorage.getItem('pending_meta_event_id') || ''; } catch(e){}
+    // sanity: must match safe pattern; otherwise discard
+    if (pending && !/^lead_\d+_[a-zA-Z0-9]{8,40}$/.test(pending)) pending = '';
+    var eventId = pending || genEventId();
+    try { sessionStorage.setItem('pending_meta_event_id', eventId); } catch(e){}
+
     var payload = {
       name: name,
       phone: phoneRaw,
@@ -1693,17 +1701,28 @@
     lastSubmitPhone = phoneRaw;
     lastSubmitAt = nowTs;
 
-    // Browser Pixel Lead (deduped with CAPI via same event_id)
+    // Server-confirmed final event_id (must equal the one we sent; server never regenerates if valid)
     var finalEventId = (result && result.event_id) || eventId;
-    if (window.fbq) {
+
+    // Browser Pixel Lead — fire EXACTLY ONCE per event_id (idempotent across reloads/retries)
+    var alreadyFired = false;
+    try { alreadyFired = !!sessionStorage.getItem('pixel_lead_sent_' + finalEventId); } catch(e){}
+    if (window.fbq && !alreadyFired) {
       try {
         window.fbq('track', 'Lead', {
           content_name: 'conditioner_deflector',
           content_category: 'conditioner_deflector',
           currency: 'USD'
         }, { eventID: finalEventId });
+        try { sessionStorage.setItem('pixel_lead_sent_' + finalEventId, '1'); } catch(e){}
       } catch(e) { console.warn('[Pixel] Lead failed', e); }
     }
+
+    // Move pending -> last_successful, clear pending so the next genuine lead gets a new ID
+    try {
+      sessionStorage.setItem('last_successful_meta_event_id', finalEventId);
+      sessionStorage.removeItem('pending_meta_event_id');
+    } catch(e){}
 
     trackEvent('form_submit', 'order_form');
     showSuccess();
