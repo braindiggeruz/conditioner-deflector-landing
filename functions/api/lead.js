@@ -101,8 +101,27 @@ async function sendToBuyo(env, payload) {
   }
   let parsed = null;
   try { parsed = text ? JSON.parse(text) : null; } catch { /* not json */ }
-  const ok = res.ok && (parsed?.success !== false);
-  return { ok, status: res.status, data: parsed, raw: parsed ? undefined : text?.slice(0, 300) };
+
+  // Real BUYO behavior verified on live API:
+  //  - bad bearer        -> HTTP 200, {"success": false}
+  //  - bad flow_id       -> HTTP 403, {"success": false, "error": "Access denied to this flow"}
+  //  - missing field     -> HTTP 422, {"detail": [{loc:[body,"flow_id"], msg:"Field required"}, ...]}
+  //  - duplicate (likely)-> HTTP 4xx, {"success": false, "error": "...duplicate..."}
+  //  - success           -> HTTP 200, {"success": true, ...}
+  const success = res.ok && parsed && parsed.success === true;
+  let reason = null;
+  if (!success) {
+    const apiErr = (parsed && (parsed.error || parsed.message)) || '';
+    const lower = String(apiErr).toLowerCase();
+    if (res.status === 422) reason = 'buyo_validation_failed';
+    else if (res.status === 401 || res.status === 403 || lower.includes('access denied') || lower.includes('flow')) reason = 'buyo_flow_invalid';
+    else if (res.status === 200 && parsed && parsed.success === false && !apiErr) reason = 'buyo_auth_failed';
+    else if (lower.includes('duplic')) reason = 'buyo_duplicate';
+    else reason = 'buyo_failed';
+  }
+  // BUYO lead id (if returned), used for safe server-side log only
+  const leadId = parsed?.data?.id || parsed?.data?.lead?.id || parsed?.lead_id || null;
+  return { ok: success, status: res.status, reason, lead_id: leadId };
 }
 
 async function sendMetaCapi(env, ev) {
@@ -176,6 +195,10 @@ export const onRequestPost = async ({ request, env }) => {
   }
 
   const ip = pickIp(request);
+  if (!ip) {
+    // Real BUYO API requires `ip` (verified: 422 missing ip). Never send fake value.
+    return json({ ok: false, error: 'no_client_ip' }, 500);
+  }
   const ua = request.headers.get('User-Agent') || sanitize(body.user_agent, 500);
   const event_id = sanitize(body.meta_event_id, 80) || crypto.randomUUID();
   const event_source_url = sanitize(body.page_url, 500) || request.headers.get('Referer') || '';
@@ -210,11 +233,15 @@ export const onRequestPost = async ({ request, env }) => {
   });
 
   if (!buyo.ok) {
+    // safe sanitized server log (no PII, no key)
+    console.log(JSON.stringify({ at: 'buyo_reject', status: buyo.status, reason: buyo.reason }));
     return json(
-      { ok: false, error: 'buyo_failed', status: buyo.status },
+      { ok: false, error: buyo.reason || 'buyo_failed' },
       502
     );
   }
+  // safe success log (no PII)
+  console.log(JSON.stringify({ at: 'buyo_ok', status: buyo.status, lead_id: buyo.lead_id || null }));
 
   // Meta CAPI (best-effort, never blocks success)
   const phone_hash = await sha256Hex(phone.replace(/\D/g, ''));

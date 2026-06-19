@@ -1664,6 +1664,7 @@
       var err = (result && result.error) || '';
       var msg = "Arizani yuborishda xatolik yuz berdi. Iltimos, birozdan keyin yana urinib ko'ring.";
       var grp = null;
+      var lockBtn = false;
       if (err === 'invalid_phone') {
         msg = "Telefon raqamini to'g'ri kiriting (+998XXXXXXXXX).";
         grp = document.getElementById('grp-phone');
@@ -1673,10 +1674,19 @@
       } else if (err === 'invalid_city') {
         msg = "Iltimos, shahar yoki viloyatni tanlang.";
         grp = document.getElementById('grp-city');
+      } else if (err === 'buyo_duplicate') {
+        msg = "Arizangiz allaqachon qabul qilingan. Menejer tez orada bog'lanadi.";
+        lockBtn = true;
       }
-      // buyo_failed, buyo_config_missing, network, etc. -> generic message (no tech details)
+      // buyo_failed | buyo_flow_invalid | buyo_auth_failed | buyo_validation_failed |
+      // buyo_config_missing | no_client_ip | network -> generic safe message above
       if (grp) grp.classList.add('has-error');
       showFormError(msg);
+      if (lockBtn) {
+        // Treat duplicate as a soft-success state for UX (block resubmits for 60s)
+        lastSubmitPhone = phoneRaw;
+        lastSubmitAt = nowTs;
+      }
       return;
     }
 
