@@ -1599,8 +1599,10 @@
     if (box) box.style.display = 'none';
   }
 
+  var leadInFlight = false;
   async function submitForm(e) {
     e.preventDefault();
+    if (leadInFlight) return; // hard guard against double-fire (button + JS dispatch)
     hideFormError();
 
     var valid = true;
@@ -1652,6 +1654,7 @@
     };
 
     setSubmitting(true);
+    leadInFlight = true;
     var ok = false, result = null;
     try {
       var res = await fetch('/api/lead', {
@@ -1665,6 +1668,7 @@
       ok = false;
     }
     setSubmitting(false);
+    leadInFlight = false;
 
     if (!ok) {
       trackEvent('form_submit_error', 'order_form');
