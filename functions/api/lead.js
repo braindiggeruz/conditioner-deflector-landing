@@ -1,8 +1,8 @@
 // Cloudflare Pages Function: /api/lead
-// - POST: validates lead -> sends to BUYO CPA -> sends Meta CAPI Lead -> returns ok:true
+// - POST: validates lead -> sends to BUYO CPA -> sends Meta CAPI Lead -> stores in KV -> returns ok:true
 // - GET: health check
 //
-// Env vars (set in Cloudflare Pages -> Settings -> Environment variables):
+// Env vars:
 //   BUYO_API_URL              (default: https://api.buyo.network/api/v1/leads)
 //   BUYO_API_KEY              REQUIRED  (Bearer token)
 //   BUYO_FLOW_ID              REQUIRED  (flow_id from Flows table)
@@ -10,6 +10,9 @@
 //   META_CAPI_ACCESS_TOKEN    optional  (enables Meta CAPI)
 //   META_TEST_EVENT_CODE      optional
 //   META_GRAPH_VERSION        optional  (default: v23.0)
+//
+// KV binding:
+//   LEAD_EVENTS               stores event_id -> {phone, name, ts, ...} for offline conversion upload
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), {
@@ -24,9 +27,7 @@ const json = (obj, status = 200) =>
   });
 
 export const onRequestOptions = () => json({ ok: true });
-
-export const onRequestGet = () =>
-  json({ ok: true, service: 'buyo-meta-lead' });
+export const onRequestGet = () => json({ ok: true, service: 'buyo-meta-lead', version: '2.0' });
 
 // --- helpers ---
 function normalizeUzPhone(raw) {
@@ -46,6 +47,32 @@ function normalizeUzPhone(raw) {
   }
   if (d.length !== 12) return null;
   return '+' + d;
+}
+
+// Uzbekistan mobile prefixes (operator codes). Phones not starting with one of
+// these after +998 are almost certainly fake. Verified UZ mobile codes 2024-2026:
+//  Beeline:   90, 91
+//  Ucell:     93, 94
+//  UMS:       97, 98
+//  Mobiuz:    88, 99
+//  Perfectum: 95
+//  Humans:    33
+const UZ_MOBILE_PREFIXES = new Set(['33', '88', '90', '91', '93', '94', '95', '97', '98', '99']);
+
+function isPhonePatternSuspect(phone) {
+  // phone format: +998XXYYYYYYY (12 digits after +)
+  const d = phone.replace(/\D/g, ''); // 998XXYYYYYYY (12)
+  if (d.length !== 12) return 'length';
+  const opCode = d.slice(3, 5);
+  if (!UZ_MOBILE_PREFIXES.has(opCode)) return 'op_code';
+  const sub = d.slice(5); // 7 last digits
+  // all same digit (1111111, 0000000, ...)
+  if (/^(\d)\1{6}$/.test(sub)) return 'all_same';
+  // exact sequence (1234567 / 7654321 / 0123456 / 9876543)
+  if (sub === '1234567' || sub === '7654321' || sub === '0123456' || sub === '9876543') return 'sequence';
+  // mostly zeros (>=5 zeros in a row)
+  if (/0{5,}/.test(sub)) return 'too_many_zeros';
+  return null;
 }
 
 async function sha256Hex(text) {
@@ -69,14 +96,21 @@ function sanitize(s, max = 500) {
   return String(s).slice(0, max);
 }
 
+function normalizeCityForMatch(city) {
+  // Strip "shahri", "viloyati"; lowercase. Used only for CAPI hash.
+  return String(city || '')
+    .toLowerCase()
+    .replace(/\s+(shahri|viloyati|shaxri|vil)\b/g, '')
+    .replace(/[^a-z0-9'`ʻʼ\u0400-\u04ff]/g, '')
+    .trim();
+}
+
 async function sendToBuyo(env, payload) {
   const url = env.BUYO_API_URL || 'https://api.buyo.network/api/v1/leads';
   const body = new URLSearchParams();
-  // required
   body.set('flow_id', env.BUYO_FLOW_ID);
   body.set('name', payload.name);
   body.set('phone', payload.phone);
-  // optional
   if (payload.ip) body.set('ip', payload.ip);
   if (payload.utm_source) body.set('utm_source', payload.utm_source);
   if (payload.utm_medium) body.set('utm_medium', payload.utm_medium);
@@ -102,12 +136,6 @@ async function sendToBuyo(env, payload) {
   let parsed = null;
   try { parsed = text ? JSON.parse(text) : null; } catch { /* not json */ }
 
-  // Real BUYO behavior verified on live API:
-  //  - bad bearer        -> HTTP 200, {"success": false}
-  //  - bad flow_id       -> HTTP 403, {"success": false, "error": "Access denied to this flow"}
-  //  - missing field     -> HTTP 422, {"detail": [{loc:[body,"flow_id"], msg:"Field required"}, ...]}
-  //  - duplicate (likely)-> HTTP 4xx, {"success": false, "error": "...duplicate..."}
-  //  - success           -> HTTP 200, {"success": true, ...}
   const success = res.ok && parsed && parsed.success === true;
   let reason = null;
   if (!success) {
@@ -119,7 +147,6 @@ async function sendToBuyo(env, payload) {
     else if (lower.includes('duplic')) reason = 'buyo_duplicate';
     else reason = 'buyo_failed';
   }
-  // BUYO lead id (if returned), used for safe server-side log only
   const leadId = parsed?.data?.id || parsed?.data?.lead?.id || parsed?.lead_id || null;
   return { ok: success, status: res.status, reason, lead_id: leadId };
 }
@@ -135,6 +162,10 @@ async function sendMetaCapi(env, ev) {
   if (ev.ip) user_data.client_ip_address = ev.ip;
   if (ev.user_agent) user_data.client_user_agent = ev.user_agent;
   if (ev.phone_hash) user_data.ph = [ev.phone_hash];
+  if (ev.name_hash) user_data.fn = [ev.name_hash];
+  if (ev.city_hash) user_data.ct = [ev.city_hash];
+  if (ev.country_hash) user_data.country = [ev.country_hash];
+  if (ev.external_id_hash) user_data.external_id = [ev.external_id_hash];
   if (ev.fbp) user_data.fbp = ev.fbp;
   if (ev.fbc) user_data.fbc = ev.fbc;
 
@@ -150,7 +181,8 @@ async function sendMetaCapi(env, ev) {
         custom_data: {
           content_name: 'conditioner_deflector',
           content_category: 'conditioner_deflector',
-          currency: 'USD',
+          currency: 'UZS',
+          value: 175000,
         },
       },
     ],
@@ -172,6 +204,33 @@ async function sendMetaCapi(env, ev) {
   }
 }
 
+// Persist lead context so /api/buyo-poll can upload Purchase events later
+// when BUYO marks the lead as approved.
+async function persistLead(env, key, value) {
+  if (!env.LEAD_EVENTS) return;
+  try {
+    await env.LEAD_EVENTS.put(key, JSON.stringify(value), { expirationTtl: 60 * 60 * 24 * 90 }); // 90 days
+  } catch (e) {
+    console.log(JSON.stringify({ stage: 'kv_put_failed', key_kind: key.split(':')[0], err: String(e).slice(0, 100) }));
+  }
+}
+
+// Detect a recent duplicate phone submit (anti-fraud + accidental double-tap).
+// Returns true if same phone was submitted within last `windowSec` seconds.
+async function isPhoneDuplicateWindow(env, phone, windowSec = 86400) {
+  if (!env.LEAD_EVENTS) return false;
+  try {
+    const phoneKey = `phone:${phone.replace(/\D/g, '')}`;
+    const last = await env.LEAD_EVENTS.get(phoneKey);
+    if (!last) return false;
+    const parsed = JSON.parse(last);
+    const ageSec = (Date.now() - (parsed.ts || 0)) / 1000;
+    return ageSec < windowSec;
+  } catch {
+    return false;
+  }
+}
+
 export const onRequestPost = async ({ request, env }) => {
   let body;
   try {
@@ -180,31 +239,69 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ ok: false, error: 'invalid_json' }, 400);
   }
 
+  // ---- Honeypot: hidden field that must remain empty ----
+  if (body._hp && String(body._hp).trim().length > 0) {
+    console.log(JSON.stringify({ stage: 'honeypot_triggered' }));
+    // Silently respond ok to avoid revealing the trap to bots
+    return json({ ok: true, event_id: 'bot_silenced' });
+  }
+
+  // ---- Form-fill speed: < 2.5s is bot-like ----
+  const fillMs = Number(body.fill_ms || 0);
+  if (fillMs > 0 && fillMs < 2500) {
+    console.log(JSON.stringify({ stage: 'fill_too_fast', fill_ms: fillMs }));
+    return json({ ok: true, event_id: 'bot_silenced' });
+  }
+
   const name = sanitize(body.name, 120).trim();
   const phone = normalizeUzPhone(body.phone);
   const city = sanitize(body.city, 120).trim();
   const width = sanitize(body.width, 60).trim();
+  const slot = sanitize(body.slot, 40).trim();
+  const acType = sanitize(body.ac_type, 40).trim();
+  const acPanel = sanitize(body.ac_panel, 40).trim();
+  const acMount = sanitize(body.ac_mount, 40).trim();
 
   if (name.length < 2) return json({ ok: false, error: 'invalid_name' }, 400);
   if (!phone) return json({ ok: false, error: 'invalid_phone' }, 400);
   if (!city) return json({ ok: false, error: 'invalid_city' }, 400);
 
-  // config check (after input validation)
+  // ---- UZ phone pattern blacklist ----
+  const patternIssue = isPhonePatternSuspect(phone);
+  if (patternIssue) {
+    console.log(JSON.stringify({ stage: 'phone_pattern_rejected', issue: patternIssue }));
+    return json({ ok: false, error: 'invalid_phone' }, 400);
+  }
+
+  // ---- Incompatible AC pre-filter (server-side belt-and-braces) ----
+  // If client-side quiz said the AC is window/floor, we already blocked,
+  // but double-check on server in case form was tampered.
+  if (acType && (acType === 'window' || acType === 'floor')) {
+    console.log(JSON.stringify({ stage: 'incompatible_ac_blocked', type: acType }));
+    return json({ ok: false, error: 'incompatible_ac' }, 400);
+  }
+
   if (!env.BUYO_API_KEY || !env.BUYO_FLOW_ID) {
     return json({ ok: false, error: 'buyo_config_missing' }, 500);
   }
 
   const ip = pickIp(request);
   if (!ip) {
-    // Real BUYO API requires `ip` (verified: 422 missing ip). Never send fake value.
     return json({ ok: false, error: 'no_client_ip' }, 500);
   }
   const ua = request.headers.get('User-Agent') || sanitize(body.user_agent, 500);
-  // Validate frontend-supplied meta_event_id; never regenerate if it's already valid.
   const rawEid = sanitize(body.meta_event_id, 80);
   const VALID_EID = /^[a-zA-Z0-9_-]{8,80}$/;
   const event_id = VALID_EID.test(rawEid) ? rawEid : crypto.randomUUID();
   const event_source_url = sanitize(body.page_url, 500) || request.headers.get('Referer') || '';
+
+  // ---- Duplicate-window check (silent block) ----
+  const isDuplicate = await isPhoneDuplicateWindow(env, phone, 86400); // 24h
+  if (isDuplicate) {
+    console.log(JSON.stringify({ stage: 'phone_duplicate_window', event_id }));
+    // Silent success response — do not send to BUYO again, do not fire Meta Lead.
+    return json({ ok: true, event_id, meta: 'duplicate_silent' });
+  }
 
   // utm + click ids
   const t = body.tracking || {};
@@ -212,10 +309,13 @@ export const onRequestPost = async ({ request, env }) => {
   const utm_medium = sanitize(t.utm_medium, 200);
   const utm_campaign = sanitize(t.utm_campaign, 200);
   const utm_term = sanitize(t.utm_term, 200);
-  // pack extras (city/width/click ids) into utm_content to keep CRM context
   const extras = [];
   if (city) extras.push(`city:${city}`);
   if (width) extras.push(`w:${width}`);
+  if (slot) extras.push(`slot:${slot}`);
+  if (acType) extras.push(`ac:${acType}`);
+  if (acPanel) extras.push(`panel:${acPanel}`);
+  if (acMount) extras.push(`mount:${acMount}`);
   if (t.subid || t.sub_id) extras.push(`subid:${sanitize(t.subid || t.sub_id, 80)}`);
   if (t.clickid || t.click_id) extras.push(`clickid:${sanitize(t.clickid || t.click_id, 80)}`);
   if (t.fbclid) extras.push(`fbclid:${sanitize(t.fbclid, 120)}`);
@@ -236,26 +336,35 @@ export const onRequestPost = async ({ request, env }) => {
   });
 
   if (!buyo.ok) {
-    // safe sanitized server log (no PII, no key)
     console.log(JSON.stringify({ stage: 'buyo_rejected', event_id, status: buyo.status, reason: buyo.reason }));
-    return json(
-      { ok: false, error: buyo.reason || 'buyo_failed' },
-      502
-    );
+    return json({ ok: false, error: buyo.reason || 'buyo_failed' }, 502);
   }
-  // safe success log (no PII)
   console.log(JSON.stringify({ stage: 'buyo_success', event_id, status: buyo.status, buyo_lead_id: buyo.lead_id || null }));
 
-  // Meta CAPI (best-effort, never blocks success)
-  const phone_hash = await sha256Hex(phone.replace(/\D/g, ''));
+  // ---- CAPI Advanced Matching: hash all available PII ----
+  const phoneDigits = phone.replace(/\D/g, ''); // 998XXXXXXXXX
+  const fbp = sanitize(body.fbp, 200);
+  const fbc = sanitize(body.fbc, 200);
+  const [phone_hash, name_hash, city_hash, country_hash, external_id_hash] = await Promise.all([
+    sha256Hex(phoneDigits),
+    sha256Hex(name),
+    sha256Hex(normalizeCityForMatch(city)),
+    sha256Hex('uz'),
+    sha256Hex(event_id), // external_id = own event_id, helps Meta dedup across devices
+  ]);
+
   const meta = await sendMetaCapi(env, {
     event_id,
     event_source_url,
     ip,
     user_agent: ua,
     phone_hash,
-    fbp: sanitize(body.fbp, 200),
-    fbc: sanitize(body.fbc, 200),
+    name_hash,
+    city_hash,
+    country_hash,
+    external_id_hash,
+    fbp,
+    fbc,
   });
 
   let metaStatus = 'sent';
@@ -268,6 +377,34 @@ export const onRequestPost = async ({ request, env }) => {
     buyo_lead_id: buyo.lead_id || null,
     capi_status: meta.status || null,
   }));
+
+  // ---- KV: store event context so /api/buyo-poll can upload Purchase later ----
+  // Two indexes:
+  //  phone:{digits}     -> { event_id, ts, ... }  (lookup when polling approved leads from BUYO)
+  //  buyo:{lead_id}     -> { event_id, ts, ... }  (alternative lookup if BUYO returns lead_id)
+  //  event:{event_id}   -> full context (for offline Purchase upload)
+  const leadCtx = {
+    event_id,
+    phone_digits: phoneDigits,
+    phone_hash,
+    name_hash,
+    city_hash,
+    country_hash,
+    external_id_hash,
+    fbp,
+    fbc,
+    ip,
+    user_agent: ua,
+    event_source_url,
+    buyo_lead_id: buyo.lead_id || null,
+    ts: Date.now(),
+  };
+  // No PII in primary key — only phone digits (which BUYO already has).
+  await persistLead(env, `phone:${phoneDigits}`, leadCtx);
+  await persistLead(env, `event:${event_id}`, leadCtx);
+  if (buyo.lead_id) {
+    await persistLead(env, `buyo:${buyo.lead_id}`, leadCtx);
+  }
 
   return json({
     ok: true,

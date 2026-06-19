@@ -762,6 +762,164 @@
     }
     .success-summary span { color: var(--ink-3); font-weight: 600; }
     .success-summary b { color: var(--green-2); font-weight: 800; }
+
+    /* ===== Compatibility quiz ===== */
+    .quiz-bg { background: linear-gradient(180deg, #FFFFFF 0%, #F0F9FF 100%); }
+    .quiz-card {
+      background: #fff;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 22px;
+      padding: 22px 18px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+      margin-top: 14px;
+    }
+    .quiz-step { display: none; }
+    .quiz-step.active { display: block; animation: quizFade 280ms ease; }
+    @keyframes quizFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .quiz-q { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .quiz-q .qnum {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      color: #2563EB; text-transform: uppercase;
+      background: #DBEAFE;
+      padding: 4px 10px; border-radius: 999px;
+      align-self: flex-start;
+    }
+    .quiz-q h3 {
+      font-size: 18px; font-weight: 800; color: var(--ink); margin: 0;
+      line-height: 1.3;
+    }
+    .quiz-opts {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    @media (max-width: 480px) {
+      .quiz-opts { grid-template-columns: 1fr; }
+    }
+    .quiz-opt {
+      background: #fff;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 14px;
+      padding: 14px 12px;
+      display: flex; align-items: center; gap: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color 180ms, background 180ms, transform 100ms;
+      font-family: inherit;
+      min-height: 64px;
+      width: 100%;
+    }
+    .quiz-opt:hover { border-color: #2563EB; background: #F8FBFF; }
+    .quiz-opt:active { transform: scale(0.98); }
+    .quiz-opt .qico {
+      width: 44px; height: 44px;
+      background: #F1F5F9;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .quiz-opt .qlbl { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .quiz-opt .qlbl b { font-size: 14px; color: var(--ink); font-weight: 700; }
+    .quiz-opt .qlbl small { font-size: 12px; color: var(--ink-3); }
+    .quiz-back {
+      margin-top: 12px;
+      background: none; border: none; color: var(--ink-3);
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; padding: 6px 8px;
+      font-family: inherit;
+    }
+    .quiz-back:hover { color: #2563EB; }
+
+    .quiz-result { text-align: center; padding: 8px 0; }
+    .quiz-result .qr-ico { margin-bottom: 12px; display: flex; justify-content: center; }
+    .quiz-result h3 { font-size: 20px; font-weight: 800; color: var(--ink); margin: 0 0 10px; line-height: 1.3; }
+    .quiz-result p { font-size: 14px; color: var(--ink-2); line-height: 1.55; margin: 0 auto 12px; max-width: 480px; }
+    .quiz-result .qr-help { font-size: 13px; color: var(--ink-3); }
+    .quiz-result .btn { margin-top: 10px; width: 100%; max-width: 360px; }
+    .qr-actions { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 6px; }
+    .qr-actions .btn { width: 100%; max-width: 360px; }
+    .btn-ghost {
+      background: transparent; color: var(--ink-2);
+      border: 1.5px solid #CBD5E1;
+    }
+    .btn-ghost:hover { border-color: #94A3B8; color: var(--ink); }
+    .btn-secondary {
+      background: var(--brand); color: white;
+    }
+    .btn-secondary:hover { background: #1E40AF; }
+
+    /* ===== Time-slot picker ===== */
+    .slot-group label[for] { display: block; }
+    .slot-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+      margin-top: 6px;
+    }
+    @media (max-width: 480px) {
+      .slot-grid { grid-template-columns: 1fr; }
+    }
+    .slot-opt { position: relative; cursor: pointer; }
+    .slot-opt input[type="radio"] {
+      position: absolute; opacity: 0; pointer-events: none;
+    }
+    .slot-opt span {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 10px 8px;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 10px;
+      background: #fff;
+      text-align: center;
+      transition: border-color 160ms, background 160ms;
+      min-height: 54px;
+      justify-content: center;
+    }
+    .slot-opt span b { font-size: 13.5px; color: var(--ink); font-weight: 700; }
+    .slot-opt span small { font-size: 11.5px; color: var(--ink-3); }
+    .slot-opt:hover span { border-color: #2563EB; }
+    .slot-opt input[type="radio"]:checked + span {
+      border-color: #16A34A; background: #F0FDF4;
+    }
+    .slot-opt input[type="radio"]:checked + span b { color: var(--green-2); }
+
+    /* ===== Success state: pre-call brief ===== */
+    .success-check { display: flex; justify-content: center; margin-bottom: 8px; }
+    .success-brief {
+      margin-top: 16px;
+      text-align: left;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .success-brief .sb-title {
+      font-size: 13px; font-weight: 700;
+      color: var(--ink-2);
+      margin-bottom: 10px;
+    }
+    .success-brief ol {
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .success-brief li {
+      display: flex; gap: 10px; align-items: flex-start;
+      font-size: 13.5px; line-height: 1.5;
+      color: var(--ink);
+    }
+    .success-brief .sb-num {
+      flex-shrink: 0;
+      width: 22px; height: 22px;
+      background: #16A34A;
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800;
+    }
+    .success-foot {
+      margin-top: 14px;
+      font-size: 12.5px;
+      color: var(--ink-3);
+      text-align: center;
+    }
     .order-form { display: flex; flex-direction: column; gap: 12px; }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group label {
@@ -1378,6 +1536,123 @@
   </div>
 </section>
 
+<!-- ===== COMPATIBILITY QUIZ (pre-form qualifier) ===== -->
+<section class="section quiz-bg" id="quiz" data-testid="quiz">
+  <div class="wrap" style="max-width:680px;">
+    <span class="eyebrow">2 ta savol — 15 soniyada</span>
+    <h2 class="title">Konditsioneringiz mos keladimi?</h2>
+    <p class="lead2" style="text-align:center;">Qisqa tekshiruv noto'g'ri yetkazilishlarning oldini oladi.</p>
+
+    <div class="quiz-card" id="quizCard">
+      <!-- step 1 -->
+      <div class="quiz-step active" data-step="1">
+        <div class="quiz-q">
+          <span class="qnum">1/2</span>
+          <h3>Konditsioneringiz qaysi turdagi?</h3>
+        </div>
+        <div class="quiz-opts">
+          <button type="button" class="quiz-opt" data-testid="quiz-ac-split" onclick="quizAnswer('ac_type','split')">
+            <span class="qico" aria-hidden="true">
+              <svg width="32" height="22" viewBox="0 0 40 24" fill="none"><rect x="2" y="3" width="36" height="14" rx="2" fill="#fff" stroke="#0B1B3B" stroke-width="1.8"/><rect x="5" y="6" width="30" height="3" rx="1" fill="#CBD5E1"/><path d="M8 20l3-3M20 21l0-4M32 20l-3-3" stroke="#0EA5E9" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span class="qlbl">
+              <b>Devor split</b>
+              <small>Devorga osilgan, ichki blok</small>
+            </span>
+          </button>
+          <button type="button" class="quiz-opt" data-testid="quiz-ac-window" onclick="quizAnswer('ac_type','window')">
+            <span class="qico" aria-hidden="true">
+              <svg width="32" height="22" viewBox="0 0 40 24" fill="none"><rect x="2" y="2" width="36" height="20" rx="1.5" fill="#fff" stroke="#0B1B3B" stroke-width="1.8"/><line x1="20" y1="2" x2="20" y2="22" stroke="#0B1B3B" stroke-width="1.6"/><line x1="2" y1="12" x2="38" y2="12" stroke="#0B1B3B" stroke-width="1.6"/><rect x="13" y="15" width="14" height="5" rx="0.8" fill="#94A3B8"/></svg>
+            </span>
+            <span class="qlbl">
+              <b>Deraza (window)</b>
+              <small>Deraza tagiga o'rnatilgan</small>
+            </span>
+          </button>
+          <button type="button" class="quiz-opt" data-testid="quiz-ac-floor" onclick="quizAnswer('ac_type','floor')">
+            <span class="qico" aria-hidden="true">
+              <svg width="22" height="32" viewBox="0 0 24 32" fill="none"><rect x="3" y="2" width="18" height="28" rx="2" fill="#fff" stroke="#0B1B3B" stroke-width="1.8"/><rect x="6" y="5" width="12" height="3" rx="0.8" fill="#CBD5E1"/><rect x="6" y="11" width="12" height="14" rx="1" fill="#E2E8F0"/></svg>
+            </span>
+            <span class="qlbl">
+              <b>Pol (floor)</b>
+              <small>Polga o'rnatilgan ustun</small>
+            </span>
+          </button>
+          <button type="button" class="quiz-opt" data-testid="quiz-ac-unknown" onclick="quizAnswer('ac_type','unknown')">
+            <span class="qico" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff" stroke="#0B1B3B" stroke-width="1.8"/><path d="M9.5 9a2.5 2.5 0 014.9.5c0 1.5-2 2-2 3.5M12 17h.01" stroke="#0B1B3B" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span class="qlbl">
+              <b>Bilmayman</b>
+              <small>Menejer aniqlashtiradi</small>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- step 2 -->
+      <div class="quiz-step" data-step="2">
+        <div class="quiz-q">
+          <span class="qnum">2/2</span>
+          <h3>Konditsioner ichki bloki qayerda o'rnatilgan?</h3>
+        </div>
+        <div class="quiz-opts">
+          <button type="button" class="quiz-opt" data-testid="quiz-mount-wall" onclick="quizAnswer('ac_mount','wall')">
+            <span class="qico" aria-hidden="true">
+              <svg width="34" height="22" viewBox="0 0 40 24" fill="none"><line x1="0" y1="22" x2="40" y2="22" stroke="#94A3B8" stroke-width="2"/><rect x="6" y="6" width="28" height="10" rx="1.5" fill="#fff" stroke="#0B1B3B" stroke-width="1.6"/><rect x="9" y="8.5" width="22" height="2" rx="0.5" fill="#CBD5E1"/></svg>
+            </span>
+            <span class="qlbl"><b>Devorga mahkam</b><small>O'rta yoki yuqori qismda</small></span>
+          </button>
+          <button type="button" class="quiz-opt" data-testid="quiz-mount-corner" onclick="quizAnswer('ac_mount','corner')">
+            <span class="qico" aria-hidden="true">
+              <svg width="30" height="28" viewBox="0 0 32 30" fill="none"><path d="M30 4L4 4L4 30" stroke="#94A3B8" stroke-width="2"/><rect x="6" y="8" width="22" height="9" rx="1.5" fill="#fff" stroke="#0B1B3B" stroke-width="1.6" transform="rotate(15 17 12.5)"/></svg>
+            </span>
+            <span class="qlbl"><b>Burchakda / qiya</b><small>Devor burchagiga yaqin</small></span>
+          </button>
+          <button type="button" class="quiz-opt" data-testid="quiz-mount-unknown" onclick="quizAnswer('ac_mount','unknown')">
+            <span class="qico" aria-hidden="true">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff" stroke="#0B1B3B" stroke-width="1.8"/><path d="M9.5 9a2.5 2.5 0 014.9.5c0 1.5-2 2-2 3.5M12 17h.01" stroke="#0B1B3B" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span class="qlbl"><b>Aniq bilmayman</b><small>Menejerga tushuntirib beraman</small></span>
+          </button>
+        </div>
+        <button type="button" class="quiz-back" onclick="quizBack()" data-testid="quiz-back">← Orqaga</button>
+      </div>
+
+      <!-- result: compatible -->
+      <div class="quiz-step" data-step="ok">
+        <div class="quiz-result good">
+          <div class="qr-ico">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#16A34A"/><path d="M7 12.5l3.5 3.5L17 9" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Ekran sizning konditsioneringiz uchun mos</h3>
+          <p>Buyurtma berishingiz mumkin. Aniq moslik buyurtmani tasdiqlash vaqtida menejer tomonidan qo'shimcha tekshiriladi.</p>
+          <button type="button" class="btn btn-green" data-testid="quiz-to-form" onclick="quizToOrder()">
+            Buyurtmaga o'tish — 175 000 so'm
+            <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- result: probably not compatible -->
+      <div class="quiz-step" data-step="bad">
+        <div class="quiz-result bad">
+          <div class="qr-ico">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#F59E0B"/><path d="M12 7v6M12 17h.01" stroke="white" stroke-width="2.6" stroke-linecap="round"/></svg>
+          </div>
+          <h3>Bu ekran sizning konditsioneringiz uchun mos kelmasligi mumkin</h3>
+          <p>Ekran asosan devorga o'rnatilgan split-konditsionerlar uchun. Deraza yoki pol konditsioneri uchun samarali bo'lmasligi mumkin.</p>
+          <p class="qr-help">Agar baribir tekshirib ko'rmoqchi bo'lsangiz — menejer telefon orqali maslahat beradi.</p>
+          <div class="qr-actions">
+            <button type="button" class="btn btn-ghost" data-testid="quiz-restart" onclick="quizRestart()">Boshqa AC tekshirish</button>
+            <button type="button" class="btn btn-secondary" data-testid="quiz-anyway" onclick="quizToOrder()">Baribir maslahatlashish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== ORDER FORM ===== -->
 <section class="section order-bg" id="order" data-testid="order" style="padding-bottom:130px;">
   <div class="wrap" style="max-width:640px;">
@@ -1411,17 +1686,39 @@
       </div>
 
       <div id="formSuccess" class="form-success" data-testid="form-success">
+        <div class="success-check">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="#16A34A"/><path d="M7 12.5l3.5 3.5L17 9" stroke="white" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
         <h3>Buyurtmangiz qabul qilindi</h3>
-        <p>Menejer buyurtma, konditsionerga moslik va yetkazib berish manzilini tasdiqlash uchun siz bilan bog'lanadi. Iltimos, telefoningizni yaqin tuting.</p>
+        <p>Menejer siz bilan tez orada bog'lanadi. Iltimos, telefoningizni yaqin tuting.</p>
         <div class="success-summary">
           <div><span>Mahsulot:</span> <b>Konditsioner himoya ekrani</b></div>
           <div><span>Miqdori:</span> <b>1 dona</b></div>
           <div><span>Narxi:</span> <b>175 000 so'm</b></div>
           <div><span>To'lov:</span> <b>Qabul qilganda</b></div>
         </div>
+        <div class="success-brief">
+          <div class="sb-title">Menejer suhbatda quyidagilarni aniqlashtiradi:</div>
+          <ol>
+            <li><span class="sb-num">1</span><span>Konditsioneringizga moslik (kerak bo'lsa fotosuratini so'rashi mumkin)</span></li>
+            <li><span class="sb-num">2</span><span>Yetkazib berish manzili va tahminiy kun</span></li>
+            <li><span class="sb-num">3</span><span>Qulay vaqt va to'lov usuli (naqd / karta)</span></li>
+          </ol>
+        </div>
+        <p class="success-foot">Tasdiqlangan buyurtma 1–3 kun ichida yetkazib beriladi. Aniq muddat suhbatda aytiladi.</p>
       </div>
 
       <form class="order-form" id="orderForm" data-testid="order-form" onsubmit="submitForm(event)" novalidate>
+        <!-- Honeypot: hidden field bots fill in. Real users never see it. -->
+        <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;">
+          <label for="fhp">Website (leave empty)</label>
+          <input type="text" id="fhp" name="_hp" tabindex="-1" autocomplete="off" />
+        </div>
+        <!-- Quiz results auto-populated (read-only, hidden from user UI) -->
+        <input type="hidden" id="fac_type" name="ac_type" value="" />
+        <input type="hidden" id="fac_panel" name="ac_panel" value="" />
+        <input type="hidden" id="fac_mount" name="ac_mount" value="" />
+
         <div class="form-group" id="grp-name">
           <label for="fname">Ismingiz *</label>
           <input type="text" id="fname" name="name" placeholder="Masalan: Jasur" autocomplete="given-name" data-testid="input-name" />
@@ -1458,6 +1755,18 @@
           <input type="text" id="fwidth" name="width" placeholder="Masalan: 80 sm yoki bilmayman" inputmode="text" data-testid="input-width" />
           <span class="field-hint">Bilmasangiz ham bo'ladi — menejer tasdiqlash vaqtida aniqlashtiradi.</span>
         </div>
+
+        <!-- Time-slot picker: when should the operator call -->
+        <div class="form-group slot-group" data-testid="slot-group">
+          <label>Menejer qachon bog'lansin?</label>
+          <div class="slot-grid">
+            <label class="slot-opt"><input type="radio" name="slot" value="now" checked data-testid="slot-now"/><span><b>Hoziroq</b><small>1 soat ichida</small></span></label>
+            <label class="slot-opt"><input type="radio" name="slot" value="evening" data-testid="slot-evening"/><span><b>Kechqurun</b><small>18:00–21:00</small></span></label>
+            <label class="slot-opt"><input type="radio" name="slot" value="tomorrow" data-testid="slot-tomorrow"/><span><b>Ertaga</b><small>kun davomida</small></span></label>
+          </div>
+          <span class="field-hint">Operatorlar 09:00–21:00 ichida bog'lanadi.</span>
+        </div>
+
         <button type="submit" class="btn btn-green" data-testid="submit-btn">
           Buyurtma berish — 175 000 so'm
           <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1599,6 +1908,68 @@
     document.getElementById('order').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  // ===== Compatibility quiz =====
+  var quizState = { ac_type: null, ac_mount: null };
+  function quizShowStep(step) {
+    document.querySelectorAll('#quizCard .quiz-step').forEach(function(s){ s.classList.remove('active'); });
+    var el = document.querySelector('#quizCard .quiz-step[data-step="' + step + '"]');
+    if (el) el.classList.add('active');
+  }
+  function quizAnswer(field, value) {
+    quizState[field] = value;
+    trackEvent('quiz_answer', field + '=' + value);
+    if (field === 'ac_type') {
+      // If clearly window/floor → bad result
+      if (value === 'window' || value === 'floor') {
+        document.getElementById('fac_type').value = value;
+        document.getElementById('fac_panel').value = '';
+        document.getElementById('fac_mount').value = '';
+        quizShowStep('bad');
+        trackEvent('quiz_result', 'bad_' + value);
+      } else {
+        // split or unknown → go to step 2
+        document.getElementById('fac_type').value = value;
+        quizShowStep('2');
+      }
+    } else if (field === 'ac_mount') {
+      document.getElementById('fac_mount').value = value;
+      // any answer → compatible (we'll let manager confirm)
+      quizShowStep('ok');
+      trackEvent('quiz_result', 'ok_' + (quizState.ac_type || 'unknown') + '_' + value);
+    }
+  }
+  function quizBack() {
+    quizShowStep('1');
+    trackEvent('quiz_back', '');
+  }
+  function quizRestart() {
+    quizState = { ac_type: null, ac_mount: null };
+    document.getElementById('fac_type').value = '';
+    document.getElementById('fac_mount').value = '';
+    document.getElementById('fac_panel').value = '';
+    quizShowStep('1');
+    trackEvent('quiz_restart', '');
+  }
+  function quizToOrder() {
+    trackEvent('quiz_to_order', quizState.ac_type + '_' + (quizState.ac_mount || ''));
+    scrollToOrder();
+    // focus name field after scroll
+    setTimeout(function(){
+      var n = document.getElementById('fname');
+      if (n) n.focus({ preventScroll: true });
+    }, 700);
+  }
+  // Initialize quiz to step 1
+  quizShowStep('1');
+
+  // ===== Form-fill timing (anti-bot signal) =====
+  var formStartedAt = 0;
+  document.addEventListener('focusin', function(e){
+    if (formStartedAt === 0 && e.target && e.target.closest && e.target.closest('#orderForm')) {
+      formStartedAt = Date.now();
+    }
+  });
+
   // ===== Form submit -> /api/lead -> BUYO + Meta CAPI -> Pixel Lead =====
   var lastSubmitPhone = '';
   var lastSubmitAt = 0;
@@ -1683,6 +2054,12 @@
       phone: phoneRaw,
       city: city,
       width: width,
+      slot: (document.querySelector('input[name="slot"]:checked') || {}).value || '',
+      ac_type: document.getElementById('fac_type').value || '',
+      ac_panel: document.getElementById('fac_panel').value || '',
+      ac_mount: document.getElementById('fac_mount').value || '',
+      _hp: document.getElementById('fhp').value || '',
+      fill_ms: formStartedAt > 0 ? (Date.now() - formStartedAt) : 0,
       meta_event_id: eventId,
       page_url: location.href,
       referrer: document.referrer || '',
@@ -1728,6 +2105,8 @@
       } else if (err === 'buyo_duplicate') {
         msg = "Arizangiz allaqachon qabul qilingan. Menejer tez orada bog'lanadi.";
         lockBtn = true;
+      } else if (err === 'incompatible_ac') {
+        msg = "Bu mahsulot devor split-konditsionerlar uchun. Boshqa AC turingiz uchun mos kelmasligi mumkin.";
       }
       // buyo_failed | buyo_flow_invalid | buyo_auth_failed | buyo_validation_failed |
       // buyo_config_missing | no_client_ip | network -> generic safe message above
@@ -1747,15 +2126,23 @@
     // Server-confirmed final event_id (must equal the one we sent; server never regenerates if valid)
     var finalEventId = (result && result.event_id) || eventId;
 
+    // Server may silently swallow honeypot / bot / duplicate. In those cases
+    // BUYO never received the lead → MUST NOT fire Meta Pixel Lead.
+    var silentlySwallowed = (
+      finalEventId === 'bot_silenced' ||
+      (result && (result.meta === 'duplicate_silent'))
+    );
+
     // Browser Pixel Lead — fire EXACTLY ONCE per event_id (idempotent across reloads/retries)
     var alreadyFired = false;
     try { alreadyFired = !!sessionStorage.getItem('pixel_lead_sent_' + finalEventId); } catch(e){}
-    if (window.fbq && !alreadyFired) {
+    if (window.fbq && !alreadyFired && !silentlySwallowed) {
       try {
         window.fbq('track', 'Lead', {
           content_name: 'conditioner_deflector',
           content_category: 'conditioner_deflector',
-          currency: 'USD'
+          currency: 'UZS',
+          value: 175000
         }, { eventID: finalEventId });
         try { sessionStorage.setItem('pixel_lead_sent_' + finalEventId, '1'); } catch(e){}
       } catch(e) { console.warn('[Pixel] Lead failed', e); }
