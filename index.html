@@ -15,6 +15,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
+  <!-- ===== Meta Pixel (loaded only if VITE_META_PIXEL_ID is set) ===== -->
+  <script>
+  (function(){
+    var raw = "%VITE_META_PIXEL_ID%";
+    var pid = (raw && raw.indexOf("%" + "VITE_") !== 0) ? raw.trim() : "";
+    if (!pid) return;
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+    document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    window.fbq('init', pid);
+    window.fbq('track', 'PageView');
+    window.__META_PIXEL_ID__ = pid;
+  })();
+  </script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -1430,21 +1447,22 @@
 
 <script>
   // ============================================================
-  //  ENV  —  Vite replaces %VITE_*% at build time from `.env`
-  //   VITE_LEAD_WEBHOOK_URL — POST endpoint for lead JSON (CRM/Sheets/n8n/Telegram bot)
+  //  ENV  —  Vite replaces placeholders at build time from `.env`
+  //   VITE_META_PIXEL_ID     — Meta Pixel ID (loaded in <head>)
   //   VITE_TELEGRAM_URL      — full https://t.me/... link (hides the Telegram btn if empty)
   //   VITE_PHONE_NUMBER      — phone in international format e.g. +998901234567 (hides Call btn if empty)
+  //  Lead chain: form -> POST /api/lead (Cloudflare Pages Function)
+  //              -> BUYO CPA -> Meta CAPI Lead -> {ok:true} -> browser Pixel Lead
   // ============================================================
   function readEnv(raw) {
     if (!raw) return "";
     var s = String(raw).trim();
-    if (s.indexOf("%VITE_") === 0) return ""; // placeholder not replaced -> treat as empty
+    if (s.indexOf("%" + "VITE_") === 0) return ""; // placeholder not replaced -> treat as empty
     return s;
   }
   var ENV = {
-    LEAD_WEBHOOK_URL: readEnv("%VITE_LEAD_WEBHOOK_URL%"),
-    TELEGRAM_URL:     readEnv("%VITE_TELEGRAM_URL%"),
-    PHONE_NUMBER:     readEnv("%VITE_PHONE_NUMBER%")
+    TELEGRAM_URL: readEnv("%VITE_TELEGRAM_URL%"),
+    PHONE_NUMBER: readEnv("%VITE_PHONE_NUMBER%")
   };
 
   // Instant contact (auto-hidden if env not configured)
@@ -1457,6 +1475,40 @@
     if (ENV.PHONE_NUMBER) { tel.href = 'tel:' + ENV.PHONE_NUMBER.replace(/[^\d+]/g,''); tel.style.display = ''; any = true; }
     wrap.style.display = any ? '' : 'none';
   })();
+
+  // ===== Tracking params (UTM + click ids) — persist across page loads =====
+  var TRACK_KEYS = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content',
+                    'subid','sub_id','clickid','click_id','fbclid','gclid','ttclid'];
+  var TRACK_STORAGE = 'cd_track_v1';
+  function readTracking() {
+    var saved = {};
+    try { saved = JSON.parse(sessionStorage.getItem(TRACK_STORAGE) || '{}') || {}; } catch(e){}
+    var qs = new URLSearchParams(location.search);
+    var changed = false;
+    TRACK_KEYS.forEach(function(k){
+      var v = qs.get(k);
+      if (v && !saved[k]) { saved[k] = v.slice(0, 250); changed = true; }
+    });
+    if (changed) { try { sessionStorage.setItem(TRACK_STORAGE, JSON.stringify(saved)); } catch(e){} }
+    return saved;
+  }
+  var TRACKING = readTracking();
+
+  // ===== fbp / fbc cookies =====
+  function readCookie(name) {
+    var m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g,'\\$1') + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+  function ensureFbc() {
+    var existing = readCookie('_fbc');
+    if (existing) return existing;
+    var fbclid = TRACKING.fbclid || new URLSearchParams(location.search).get('fbclid');
+    if (!fbclid) return '';
+    var fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+    try { document.cookie = '_fbc=' + encodeURIComponent(fbc) + '; max-age=' + (90*24*3600) + '; path=/; SameSite=Lax'; } catch(e){}
+    return fbc;
+  }
+  ensureFbc();
 
   // Analytics dataLayer  {event, section, product}
   window.dataLayer = window.dataLayer || [];
@@ -1508,13 +1560,52 @@
     document.getElementById('order').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // Form validation + submit
-  function submitForm(e) {
+  // ===== Form submit -> /api/lead -> BUYO + Meta CAPI -> Pixel Lead =====
+  var lastSubmitPhone = '';
+  var lastSubmitAt = 0;
+  function genEventId() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+  }
+  function setSubmitting(submitting) {
+    var btn = document.querySelector('#orderForm button[type="submit"]');
+    if (!btn) return;
+    if (submitting) {
+      btn.dataset._label = btn.dataset._label || btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = 'Yuborilmoqda…';
+    } else {
+      btn.disabled = false;
+      if (btn.dataset._label) btn.innerHTML = btn.dataset._label;
+    }
+  }
+  function showFormError(msg) {
+    var box = document.getElementById('formError');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'formError';
+      box.setAttribute('data-testid', 'form-error');
+      box.style.cssText = 'margin-top:10px;padding:10px 12px;border-radius:10px;background:#FEF2F2;color:#991B1B;font-size:13.5px;font-weight:600;border:1px solid #FECACA;';
+      var form = document.getElementById('orderForm');
+      form.parentNode.insertBefore(box, form.nextSibling);
+    }
+    box.textContent = msg;
+    box.style.display = 'block';
+  }
+  function hideFormError() {
+    var box = document.getElementById('formError');
+    if (box) box.style.display = 'none';
+  }
+
+  async function submitForm(e) {
     e.preventDefault();
+    hideFormError();
+
     var valid = true;
     var name  = document.getElementById('fname').value.trim();
-    var phone = document.getElementById('fphone').value.replace(/\s/g,'');
+    var phoneRaw = document.getElementById('fphone').value.replace(/\s/g,'');
     var city  = document.getElementById('fcity').value;
+    var width = document.getElementById('fwidth').value.trim();
     var grpName  = document.getElementById('grp-name');
     var grpPhone = document.getElementById('grp-phone');
     var grpCity  = document.getElementById('grp-city');
@@ -1524,33 +1615,68 @@
     grpCity.classList.remove('has-error');
 
     if (name.length < 2) { grpName.classList.add('has-error'); valid = false; }
-    if (!/^\+998\d{9}$/.test(phone)) { grpPhone.classList.add('has-error'); valid = false; }
+    if (!/^\+998\d{9}$/.test(phoneRaw)) { grpPhone.classList.add('has-error'); valid = false; }
     if (!city) { grpCity.classList.add('has-error'); valid = false; }
     if (!valid) return;
 
-    var lead = {
-      name: name,
-      phone: phone,
-      city: city,
-      width: document.getElementById('fwidth').value.trim(),
-      product: "Konditsioner himoya ekrani",
-      submitted_at: new Date().toISOString(),
-      source: location.host
-    };
-    trackEvent('form_submit', 'order_form');
+    // Duplicate block: same phone within 60s
+    var nowTs = Date.now();
+    if (lastSubmitPhone === phoneRaw && (nowTs - lastSubmitAt) < 60000) {
+      showFormError("Ariza yuborildi. Iltimos, biroz kuting.");
+      return;
+    }
 
-    // === WEBHOOK ===
-    // Paste your endpoint into VITE_LEAD_WEBHOOK_URL in `.env`, then `npm run build` + redeploy.
-    if (ENV.LEAD_WEBHOOK_URL) {
-      fetch(ENV.LEAD_WEBHOOK_URL, {
+    var eventId = genEventId();
+    var payload = {
+      name: name,
+      phone: phoneRaw,
+      city: city,
+      width: width,
+      meta_event_id: eventId,
+      page_url: location.href,
+      user_agent: navigator.userAgent,
+      fbp: readCookie('_fbp'),
+      fbc: readCookie('_fbc'),
+      tracking: TRACKING
+    };
+
+    setSubmitting(true);
+    var ok = false, result = null;
+    try {
+      var res = await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(lead),
-        keepalive: true
-      }).catch(function(err){ console.warn('[Lead] webhook failed, lead still captured:', err); });
-    } else {
-      console.log('[Lead captured] (VITE_LEAD_WEBHOOK_URL is empty):', lead);
+        body: JSON.stringify(payload)
+      });
+      result = await res.json().catch(function(){ return null; });
+      ok = res.ok && result && result.ok === true;
+    } catch (err) {
+      ok = false;
     }
+    setSubmitting(false);
+
+    if (!ok) {
+      trackEvent('form_submit_error', 'order_form');
+      showFormError("Xatolik yuz berdi. Iltimos, telefon raqamingizni tekshiring yoki keyinroq urinib ko'ring.");
+      return;
+    }
+
+    lastSubmitPhone = phoneRaw;
+    lastSubmitAt = nowTs;
+
+    // Browser Pixel Lead (deduped with CAPI via same event_id)
+    var finalEventId = (result && result.event_id) || eventId;
+    if (window.fbq) {
+      try {
+        window.fbq('track', 'Lead', {
+          content_name: 'conditioner_deflector',
+          content_category: 'conditioner_deflector',
+          currency: 'USD'
+        }, { eventID: finalEventId });
+      } catch(e) { console.warn('[Pixel] Lead failed', e); }
+    }
+
+    trackEvent('form_submit', 'order_form');
     showSuccess();
   }
 
