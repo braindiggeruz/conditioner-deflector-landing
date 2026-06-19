@@ -881,6 +881,40 @@
     }
     .slot-opt input[type="radio"]:checked + span b { color: var(--green-2); }
 
+    /* ===== Honest call expectation block (replaces slot picker) ===== */
+    .call-expect {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 14px 0 16px;
+    }
+    .call-expect .ce-icon {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid #BBF7D0;
+    }
+    .call-expect .ce-text {
+      display: flex; flex-direction: column; gap: 3px;
+      min-width: 0;
+    }
+    .call-expect .ce-text b {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #14532D;
+    }
+    .call-expect .ce-text small {
+      font-size: 12.5px;
+      color: #166534;
+      line-height: 1.45;
+    }
+
     /* ===== Success state: pre-call brief ===== */
     .success-check { display: flex; justify-content: center; margin-bottom: 8px; }
     .success-brief {
@@ -1756,15 +1790,15 @@
           <span class="field-hint">Bilmasangiz ham bo'ladi — menejer tasdiqlash vaqtida aniqlashtiradi.</span>
         </div>
 
-        <!-- Time-slot picker: when should the operator call -->
-        <div class="form-group slot-group" data-testid="slot-group">
-          <label>Menejer qachon bog'lansin?</label>
-          <div class="slot-grid">
-            <label class="slot-opt"><input type="radio" name="slot" value="now" checked data-testid="slot-now"/><span><b>Hoziroq</b><small>1 soat ichida</small></span></label>
-            <label class="slot-opt"><input type="radio" name="slot" value="evening" data-testid="slot-evening"/><span><b>Kechqurun</b><small>18:00–21:00</small></span></label>
-            <label class="slot-opt"><input type="radio" name="slot" value="tomorrow" data-testid="slot-tomorrow"/><span><b>Ertaga</b><small>kun davomida</small></span></label>
+        <!-- Honest call expectation (replaces fake slot picker) -->
+        <div class="call-expect" data-testid="call-expect">
+          <div class="ce-icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.9.34 1.78.66 2.61a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.47-1.23a2 2 0 012.11-.45c.83.32 1.71.54 2.61.66a2 2 0 011.72 2.03z" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <span class="field-hint">Operatorlar 09:00–21:00 ichida bog'lanadi.</span>
+          <div class="ce-text">
+            <b>Menejer iloji boricha tez bog'lanadi</b>
+            <small>Operatorlar 09:00–21:00 ichida ishlaydi. Band bo'lsangiz — qulay vaqtni birgalikda kelishib olamiz.</small>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-green" data-testid="submit-btn">
@@ -2054,7 +2088,6 @@
       phone: phoneRaw,
       city: city,
       width: width,
-      slot: (document.querySelector('input[name="slot"]:checked') || {}).value || '',
       ac_type: document.getElementById('fac_type').value || '',
       ac_panel: document.getElementById('fac_panel').value || '',
       ac_mount: document.getElementById('fac_mount').value || '',
