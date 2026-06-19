@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Konditsioner himoya ekrani — sovuq shamol yuzga urmaydi | O'zbekiston</title>
-  <meta name="description" content="Konditsioner kerak, lekin sovuq shamol sizga to'g'ri uryaptimi? Himoya ekrani oqimni yuqoriga buradi. 60–110 sm, 5 daqiqada o'rnatish, qabul qilganda to'lash, O'zbekiston bo'ylab yetkazib berish." />
+  <title>Konditsioner himoya ekrani — 175 000 so'm, qabul qilganda to'lov | O'zbekiston</title>
+  <meta name="description" content="Konditsioner havosi to'g'ridan-to'g'ri sizga urmasin. Himoya ekrani oqimni yuqoriga yo'naltiradi. Narxi 175 000 so'm. Mahsulotni qabul qilganda to'laysiz. O'zbekiston bo'ylab yetkazib berish." />
   <meta name="theme-color" content="#0B1B3B" />
-  <meta property="og:title" content="Konditsioner himoya ekrani — sovuq shamol yuzga urmaydi" />
-  <meta property="og:description" content="Himoya ekrani sovuq havo oqimini yuqoriga buradi. 60–110 sm, qabul qilganda to'lash." />
+  <meta property="og:title" content="Konditsioner himoya ekrani — 175 000 so'm" />
+  <meta property="og:description" content="Himoya ekrani havo oqimini yuqoriga yo'naltiradi. 175 000 so'm. Qabul qilganda to'lov." />
   <meta property="og:image" content="img/product-amazon.jpg" />
   <meta property="og:type" content="product" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230EA5E9'/%3E%3Cpath d='M8 18c2-4 6-4 8 0s6 4 8 0' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3Cpath d='M8 13c2-4 6-4 8 0s6 4 8 0' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' opacity='.6'/%3E%3C/svg%3E" />
@@ -723,6 +723,45 @@
       line-height: 1.55;
       margin-bottom: 16px;
     }
+    /* order summary box (inside form card, above the form) */
+    .order-summary {
+      background: linear-gradient(180deg, #F8FBFF 0%, #ECFDF5 100%);
+      border: 1px solid #BBF7D0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .order-summary .os-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 13px; gap: 12px;
+    }
+    .order-summary .os-lbl {
+      color: var(--ink-3); font-weight: 600; flex-shrink: 0;
+    }
+    .order-summary .os-val {
+      color: var(--ink); font-weight: 700; text-align: right;
+    }
+    .order-summary .os-row.os-price .os-val {
+      color: var(--green-2); font-size: 16px;
+    }
+    .order-summary .os-row.os-price .os-val b { font-weight: 900; }
+    /* success state summary */
+    .success-summary {
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid #BBF7D0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: left;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .success-summary div {
+      display: flex; justify-content: space-between;
+      font-size: 13px; color: #065F46;
+    }
+    .success-summary span { color: var(--ink-3); font-weight: 600; }
+    .success-summary b { color: var(--green-2); font-weight: 800; }
     .order-form { display: flex; flex-direction: column; gap: 12px; }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group label {
@@ -869,13 +908,12 @@
     "@context":"https://schema.org",
     "@type":"FAQPage",
     "mainEntity":[
-      {"@type":"Question","name":"Bu ekran mening konditsionerimga mos keladimi?","acceptedAnswer":{"@type":"Answer","text":"Ekran 60–110 sm kenglikka moslanadi va ko'pchilik devor split-konditsionerlari uchun mos. Ariza qoldirsangiz, menejer mosligini aniqlashtirib beradi."}},
-      {"@type":"Question","name":"O'rnatish uchun usta kerakmi?","acceptedAnswer":{"@type":"Answer","text":"Ko'p holatda usta kerak emas. Ekran oddiy mahkamlash qismlari bilan o'rnatiladi va taxminan 5 daqiqa vaqt oladi."}},
+      {"@type":"Question","name":"Bu ekran mening konditsionerimga mos keladimi?","acceptedAnswer":{"@type":"Answer","text":"Ko'pchilik devor split-konditsionerlari uchun. Aniq moslik buyurtmani tasdiqlash vaqtida menejer bilan tekshiriladi."}},
+      {"@type":"Question","name":"O'rnatish uchun usta kerakmi?","acceptedAnswer":{"@type":"Answer","text":"Ko'p holatda usta kerak emas. Komplektdagi mahkamlash qismlari yordamida o'rnatiladi. Ko'p hollarda bir necha daqiqada o'rnatiladi."}},
       {"@type":"Question","name":"Konditsionerga zarar yetkazmaydimi?","acceptedAnswer":{"@type":"Answer","text":"To'g'ri o'rnatilganda konditsionerga zarar yetkazmaydi. Yuzani tozalash va mahkamlash qismini to'g'ri joylashtirish muhim."}},
       {"@type":"Question","name":"Havo sovitishiga xalaqit bermaydimi?","acceptedAnswer":{"@type":"Answer","text":"Ekran havoni to'sish uchun emas, yo'nalishini o'zgartirish uchun ishlatiladi. Havo yuqoriga va xona bo'ylab yumshoqroq tarqaladi."}},
-      {"@type":"Question","name":"Oldindan to'lov bormi?","acceptedAnswer":{"@type":"Answer","text":"Yo'q. Tovarni qabul qilganda to'laysiz."}},
-      {"@type":"Question","name":"Qancha kunda yetkazib beriladi?","acceptedAnswer":{"@type":"Answer","text":"Hududingizga qarab odatda 1–3 kun ichida yetkazib berish mumkin. Aniq muddatni menejer aytadi."}},
-      {"@type":"Question","name":"Agar mos kelmasa nima bo'ladi?","acceptedAnswer":{"@type":"Answer","text":"Moslik bo'yicha menejer oldindan aniqlashtiradi. Agar tovar mos kelmasa, qaytarish shartlari tushuntiriladi."}}
+      {"@type":"Question","name":"To'lov qanday amalga oshiriladi?","acceptedAnswer":{"@type":"Answer","text":"Mahsulot narxi 175 000 so'm. To'lov mahsulotni qabul qilganda — naqd yoki karta orqali. To'lashdan oldin mahsulotni ko'rib chiqish mumkin."}},
+      {"@type":"Question","name":"Buyurtmadan keyin nima bo'ladi?","acceptedAnswer":{"@type":"Answer","text":"Arizangiz qabul qilinadi va menejer siz bilan bog'lanib, konditsionerga mosligini va yetkazib berish manzilini tasdiqlaydi. Toshkent bo'ylab odatda keyingi kuni, hududlarga 1–3 kun ichida yetkaziladi. 14 kun ichida qaytarish shartlari mavjud."}}
     ]
   }
   </script>
@@ -883,10 +921,10 @@
   {
     "@context":"https://schema.org",
     "@type":"Product",
-    "name":"Konditsioner uchun universal himoya ekrani (deflektor)",
-    "description":"Universal deflektor — sovuq oqimni to'g'ridan-to'g'ri urmasdan xona bo'ylab yumshoq taqsimlaydi. 60–110 sm, 0–90°, ABS-plastik.",
+    "name":"Konditsioner uchun himoya ekrani (deflektor)",
+    "description":"Konditsioner havo oqimini yuqoriga yo'naltiradi. Xona sovishda davom etadi, ammo sovuq shamol yuzga to'g'ri urmaydi.",
     "brand":{"@type":"Brand","name":"Himoya Ekrani"},
-    "offers":{"@type":"Offer","availability":"https://schema.org/InStock","priceCurrency":"UZS","areaServed":"UZ"}
+    "offers":{"@type":"Offer","availability":"https://schema.org/InStock","priceCurrency":"UZS","price":"175000","areaServed":"UZ"}
   }
   </script>
 </head>
@@ -895,32 +933,32 @@
 
 <!-- ===== TOP NOTICE BAR ===== -->
 <div class="notice" data-testid="notice-bar">
-  <b>Qabul qilganda to'lash</b><span class="sep">•</span>
-  O'zbekiston bo'ylab yetkazib berish<span class="sep">•</span>
-  Usta kerak emas
+  <b>175 000 so'm</b><span class="sep">•</span>
+  Mahsulotni qabul qilganda to'lov<span class="sep">•</span>
+  O'zbekiston bo'ylab yetkazib berish
 </div>
 
 <!-- ===== HERO ===== -->
 <section class="hero" data-testid="hero">
   <div class="hero-wrap">
     <div class="hero-left">
-      <div class="hero-eyebrow"><span class="dot"></span>Mavsumiy yechim · O'zbekiston</div>
-      <h1>Konditsioner sovug'i endi <em>yuzingizga urmaydi</em></h1>
-      <p class="lead">Himoya ekrani havo oqimini yuqoriga buradi — xona soviydi, lekin shamol sizga to'g'ri urmaydi.</p>
+      <div class="hero-eyebrow"><span class="dot"></span>Konditsioner himoya ekrani · O'zbekiston</div>
+      <h1>Konditsioner havosi <em>to'g'ridan-to'g'ri sizga urmasin</em></h1>
+      <p class="lead">Himoya ekrani havo oqimini yuqoriga yo'naltiradi. Xona sovishda davom etadi, ammo sovuq shamol yuzga, divanga yoki ish joyiga to'g'ri urmaydi.</p>
     </div>
 
     <div class="hero-right">
       <!-- product / offer card -->
       <article class="product-card" data-testid="product-card">
         <div class="ph">
-          <img src="img/product-amazon.jpg" alt="Konditsioner uchun himoya ekrani (deflektor)" loading="eager" />
-          <span class="tag cyan"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Universal 60–110 sm</span>
-          <span class="tag-green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M2 10h20" stroke="white" stroke-width="2"/></svg>Qabul qilganda to'lash</span>
+          <img src="img/product-amazon.jpg" alt="Konditsioner uchun himoya ekrani (deflektor)" loading="eager" fetchpriority="high" />
+          <span class="tag cyan"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M2 12h20" stroke="white" stroke-width="2.4" stroke-linecap="round"/></svg>175 000 so'm</span>
+          <span class="tag-green"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M2 10h20" stroke="white" stroke-width="2"/></svg>Qabul qilganda to'lov</span>
         </div>
         <div class="body">
           <div class="name">Konditsioner uchun himoya ekrani</div>
           <button class="btn btn-primary" data-testid="hero-cta" onclick="scrollToOrder(); trackEvent('hero_cta_click','hero')">
-            Menejer qo'ng'iroq qilsin
+            Buyurtma berish — 175 000 so'm
             <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <div class="microtrust">
@@ -928,19 +966,19 @@
             <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Qabul qilganda to'laysiz</span>
           </div>
           <ul class="feat" style="margin-top:14px;">
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>0–90° burchak sozlash</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>ABS-plastik, oq</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Yopishqoq lentalar bilan</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Havo oqimi yo'nalishini sozlash mumkin</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Yengil, ixcham konstruksiya</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Komplektdagi mahkamlash qismlari bilan</li>
             <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Yechib artish mumkin</li>
           </ul>
           <div class="price-line" style="margin-bottom:0;">
             <div>
               <div class="lbl">Narx</div>
-              <div class="val">Operator <span>aniqlashtiradi</span></div>
+              <div class="val">175 000 <span>so'm</span></div>
             </div>
             <div style="text-align:right;">
-              <div class="lbl">Yetkazib berish</div>
-              <div class="val">1–3 kun</div>
+              <div class="lbl">To'lov</div>
+              <div class="val">Qabulda</div>
             </div>
           </div>
         </div>
@@ -948,10 +986,10 @@
 
       <!-- compact hero pills (below product card on mobile, above on desktop) -->
       <div class="hero-pills">
-        <div class="hero-pill"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>60–110 sm</div>
-        <div class="hero-pill"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>5 daqiqada</div>
+        <div class="hero-pill"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Ko'pchilik split AC uchun</div>
+        <div class="hero-pill"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Bir necha daqiqada</div>
         <div class="hero-pill"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Usta kerak emas</div>
-        <div class="hero-pill green"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20M6 15h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>To'lov qabulda</div>
+        <div class="hero-pill green"><span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20M6 15h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>Qabulda to'lov</div>
       </div>
     </div>
   </div>
@@ -960,10 +998,10 @@
 <!-- ===== TRUST STRIP ===== -->
 <div class="strip" data-testid="trust-strip">
   <div class="strip-inner">
-    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>60–110 sm</span>
-    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>5 daqiqada o'rnatish</span>
+    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>175 000 so'm</span>
+    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Bir necha daqiqada o'rnatiladi</span>
     <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Usta kerak emas</span>
-    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="currentColor" stroke-width="2.2"/><path d="M2 10h20M6 15h3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Qabul qilganda to'lash</span>
+    <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="currentColor" stroke-width="2.2"/><path d="M2 10h20M6 15h3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Qabul qilganda to'lov</span>
     <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="1" y="8" width="15" height="9" rx="1.5" stroke="currentColor" stroke-width="2.2"/><path d="M16 11h3l3 3v3h-6M6 17a2 2 0 104 0M16 17a2 2 0 104 0" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>O'zbekiston bo'ylab yetkazib berish</span>
   </div>
 </div>
@@ -1051,7 +1089,7 @@
 
     <div class="compare-cta">
       <button class="btn" data-testid="compare-cta" onclick="scrollToOrder(); trackEvent('hero_cta_click','compare')">
-        Mosligini tekshirish
+        Buyurtma berish — 175 000 so'm
         <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
@@ -1172,10 +1210,6 @@
         <div class="val">Ha</div>
       </div>
       <div class="row">
-        <div class="lbl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#D1FAE5"/><path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Kengligi 60–110 sm</div>
-        <div class="val">Ha</div>
-      </div>
-      <div class="row">
         <div class="lbl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#D1FAE5"/><path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Old paneli nisbatan tekis</div>
         <div class="val">Ha</div>
       </div>
@@ -1183,9 +1217,13 @@
         <div class="lbl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#D1FAE5"/><path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Havo chiqish qismi old/past tomonda</div>
         <div class="val">Ha</div>
       </div>
-      <div class="note">Bilmasangiz ham bo'ladi — <b>menejer telefon orqali aniqlashtiradi</b> va mos kelmasa qaytarish shartlari tushuntiriladi.</div>
+      <div class="row">
+        <div class="lbl"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#D1FAE5"/><path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Konditsioner devorga mahkam o'rnatilgan</div>
+        <div class="val">Ha</div>
+      </div>
+      <div class="note"><b>Ko'pchilik devor split-konditsionerlari uchun.</b> Aniq moslik buyurtmani tasdiqlash vaqtida menejer bilan tekshiriladi. Buyurtma berishda konditsioner kengligini taxminan kiritsangiz, tekshirish tezroq bo'ladi.</div>
       <button class="btn btn-primary" style="margin-top:14px;" data-testid="fit-cta" onclick="scrollToOrder(); trackEvent('compatibility_cta_click','compatibility')">
-        Mosligini bepul tekshirish
+        Buyurtma berish — 175 000 so'm
         <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
@@ -1200,84 +1238,80 @@
     <div class="obj-grid">
       <div class="obj">
         <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9.5 9a2.5 2.5 0 014.9.5c0 1.5-2 2-2 3.5M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Menga mos keladimi?</h4>
-        <p>60–110 sm bo'lsa va devorga o'rnatilgan split bo'lsa — ko'p hollarda mos keladi. Menejer telefonda aniqlashtiradi.</p>
+        <p>Ko'pchilik devor split-konditsionerlari uchun mos. Buyurtmani tasdiqlash vaqtida menejer aniq mosligini tekshiradi.</p>
       </div>
       <div class="obj">
         <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9.5 9a2.5 2.5 0 014.9.5c0 1.5-2 2-2 3.5M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>O'rnatish qiyin emasmi?</h4>
-        <p>Asboblarsiz, taxminan 5 daqiqada o'rnatiladi. Usta chaqirish shart emas.</p>
+        <p>Ko'p hollarda bir necha daqiqada o'rnatiladi. Usta chaqirish shart emas — komplektdagi mahkamlash qismlari yordamida.</p>
       </div>
       <div class="obj">
         <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9.5 9a2.5 2.5 0 014.9.5c0 1.5-2 2-2 3.5M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Konditsionerga zarar qilmaydimi?</h4>
-        <p>To'g'ri o'rnatilganda zarar yetkazmaydi. Yopishqoq lentalar yumshoq, izsiz olinadi.</p>
+        <p>To'g'ri o'rnatilganda zarar yetkazmaydi. Mahkamlash qismlari qulay olinadi.</p>
       </div>
       <div class="obj">
         <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9.5 9a2.5 2.5 0 014.9.5c0 1.5-2 2-2 3.5M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Sovitishga xalaqit bermaydimi?</h4>
         <p>Yo'q. Ekran havoni to'smaydi — yo'nalishini o'zgartiradi, xona sovishda davom etadi.</p>
       </div>
       <div class="obj">
-        <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9.5 9a2.5 2.5 0 014.9.5c0 1.5-2 2-2 3.5M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Oldindan to'lash kerakmi?</h4>
-        <p>Yo'q. Avval tovarni qabul qilasiz, tekshirasiz — keyin to'laysiz.</p>
+        <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9.5 9a2.5 2.5 0 014.9.5c0 1.5-2 2-2 3.5M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>To'lov qanday amalga oshiriladi?</h4>
+        <p>Mahsulot narxi 175 000 so'm. To'lov — mahsulotni qabul qilganda. Naqd yoki karta orqali. Oldindan to'lov yo'q.</p>
       </div>
       <div class="obj">
         <h4><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M9.5 9a2.5 2.5 0 014.9.5c0 1.5-2 2-2 3.5M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Yetkazib berish qancha vaqt oladi?</h4>
-        <p>Hududingizga qarab odatda 1–3 kun. Aniq muddatni menejer aytadi.</p>
+        <p>Toshkent bo'ylab odatda keyingi kuni, hududlarga 1–3 kun. Aniq muddatni menejer aytadi.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== REVIEWS ===== -->
-<section class="section rev-bg" data-testid="reviews">
+<!-- ===== DELIVERY & PAYMENT (verified) ===== -->
+<section class="section rev-bg" data-testid="delivery">
   <div class="wrap">
-    <span class="eyebrow">Mijozlar fikri</span>
-    <h2 class="title">Nima deyishadi</h2>
+    <span class="eyebrow">Buyurtma shartlari</span>
+    <h2 class="title">Narx, yetkazib berish va to'lov</h2>
     <div class="rev-grid">
       <div class="rev">
         <div class="rev-head">
-          <div class="rev-av">D</div>
+          <div class="rev-av" style="background:linear-gradient(135deg,#2563EB,#0EA5E9);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M2 12h20" stroke="white" stroke-width="2.4" stroke-linecap="round"/></svg></div>
           <div>
-            <div class="rev-name">Dilshod</div>
-            <div class="rev-meta">Toshkent, Yunusobod</div>
-            <div class="rev-stars">★★★★★</div>
+            <div class="rev-name">Mahsulot narxi</div>
+            <div class="rev-meta">Bitta dona uchun</div>
           </div>
         </div>
-        <p>Konditsioner divan tomonga qarab turardi. Ekran qo'ygandan keyin havo yuqoriga ketadigan bo'ldi, ancha qulay.</p>
+        <p><b>175 000 so'm.</b> Qo'shimcha to'lov yo'q. Aktsiya yoki yashirin chegirma e'lon qilmaymiz.</p>
       </div>
       <div class="rev">
         <div class="rev-head">
-          <div class="rev-av">G</div>
+          <div class="rev-av" style="background:linear-gradient(135deg,#16A34A,#15803D);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="13" rx="2" stroke="white" stroke-width="2"/><path d="M2 10h20" stroke="white" stroke-width="2"/></svg></div>
           <div>
-            <div class="rev-name">Gulnoza</div>
-            <div class="rev-meta">Samarqand</div>
-            <div class="rev-stars">★★★★★</div>
+            <div class="rev-name">To'lov — qabulda</div>
+            <div class="rev-meta">Naqd yoki karta</div>
           </div>
         </div>
-        <p>Bolalar xonasiga oldik. O'rnatish qiyin emas ekan. Oldindan to'lamaganimiz juda yoqdi.</p>
+        <p>Oldindan to'lov yo'q. Mahsulotni <b>to'lashdan oldin ko'rib chiqish mumkin.</b></p>
       </div>
       <div class="rev">
         <div class="rev-head">
-          <div class="rev-av">B</div>
+          <div class="rev-av" style="background:linear-gradient(135deg,#0EA5E9,#06B6D4);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="1" y="8" width="15" height="9" rx="1.5" stroke="white" stroke-width="2.2"/><path d="M16 11h3l3 3v3h-6M6 17a2 2 0 104 0M16 17a2 2 0 104 0" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg></div>
           <div>
-            <div class="rev-name">Bekzod</div>
-            <div class="rev-meta">Farg'ona</div>
-            <div class="rev-stars">★★★★★</div>
+            <div class="rev-name">Yetkazib berish</div>
+            <div class="rev-meta">O'zbekiston bo'ylab</div>
           </div>
         </div>
-        <p>Ofisda bitta joyga juda sovuq urardi. Endi oqim tarqalyapti, xodimlar kamroq shikoyat qilyapti.</p>
+        <p>Toshkent — odatda keyingi kuni. Hududlarga — odatda 1–3 kun. Aniq muddat tasdiqlanganda aytiladi.</p>
       </div>
       <div class="rev">
         <div class="rev-head">
-          <div class="rev-av">S</div>
+          <div class="rev-av" style="background:linear-gradient(135deg,#F59E0B,#D97706);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0z" stroke="white" stroke-width="2"/><path d="M8 14l-2 2M16 10l2-2M12 8v4" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></div>
           <div>
-            <div class="rev-name">Sevara</div>
-            <div class="rev-meta">Buxoro</div>
-            <div class="rev-stars">★★★★★</div>
+            <div class="rev-name">Qaytarish</div>
+            <div class="rev-meta">14 kun ichida</div>
           </div>
         </div>
-        <p>Kengligi mos keldi, usta chaqirmadik. Sodda, lekin kerakli narsa ekan.</p>
+        <p>14 kun ichida qaytarish shartlari mavjud. Aniq shartlarni menejer tasdiqlash vaqtida aytib beradi.</p>
       </div>
     </div>
-    <p class="rev-foot">Natija konditsioner turi, xona joylashuvi va o'rnatish burchagiga qarab farq qilishi mumkin.</p>
+    <p class="rev-foot">Yetkazib berish narxi va aniq vaqt hududga qarab buyurtmani tasdiqlash vaqtida aniqlashtiriladi.</p>
   </div>
 </section>
 
@@ -1302,10 +1336,10 @@
     <span class="eyebrow">Qanday ishlaydi</span>
     <h2 class="title">Buyurtma 4 qadam ichida</h2>
     <div class="proc-list">
-      <div class="proc"><div class="num">1</div><div><h4>Ariza qoldirasiz</h4><p>Ism, telefon va shaharni yozasiz. Buyurtma majburiy emas.</p></div></div>
-      <div class="proc"><div class="num">2</div><div><h4>Menejer qo'ng'iroq qiladi</h4><p>Konditsioneringizga mosligini, narx va yetkazib berishni aytadi.</p></div></div>
-      <div class="proc"><div class="num">3</div><div><h4>Tovar yetkaziladi</h4><p>Manzilingizga 1–3 kun ichida (hududga qarab) yuboriladi.</p></div></div>
-      <div class="proc"><div class="num">4</div><div><h4>Tekshirib to'laysiz</h4><p>Tovarni qabul qilganda — keyin to'lov qilasiz.</p></div></div>
+      <div class="proc"><div class="num">1</div><div><h4>Buyurtmani rasmiylashtirasiz</h4><p>Ism, telefon va shaharni yozasiz. Buyurtma narxi 175 000 so'm.</p></div></div>
+      <div class="proc"><div class="num">2</div><div><h4>Menejer tasdiqlaydi</h4><p>Konditsioneringizga mosligini va yetkazib berish manzilini tasdiqlaydi.</p></div></div>
+      <div class="proc"><div class="num">3</div><div><h4>Tovar yetkaziladi</h4><p>Toshkent — odatda keyingi kuni, hududlarga — 1–3 kun ichida.</p></div></div>
+      <div class="proc"><div class="num">4</div><div><h4>Qabul qilganda to'laysiz</h4><p>Mahsulotni ko'rib chiqib, 175 000 so'mni naqd yoki karta bilan to'laysiz.</p></div></div>
     </div>
   </div>
 </section>
@@ -1318,31 +1352,27 @@
     <div class="faq-list">
       <div class="faq-item">
         <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q1')">Bu ekran mening konditsionerimga mos keladimi?<span class="arr">▼</span></button>
-        <div class="faq-a">Ekran 60–110 sm kenglikka moslanadi va ko'pchilik devor split-konditsionerlari uchun mos. Ariza qoldirsangiz, menejer mosligini aniqlashtirib beradi.</div>
+        <div class="faq-a">Ko'pchilik devor split-konditsionerlari uchun. Aniq moslik buyurtmani tasdiqlash vaqtida menejer bilan tekshiriladi. Buyurtma berishda konditsioner kengligini taxminan kiritsangiz, tekshirish tezroq bo'ladi.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q2')">O'rnatish uchun usta kerakmi?<span class="arr">▼</span></button>
-        <div class="faq-a">Ko'p holatda usta kerak emas. Ekran oddiy mahkamlash qismlari bilan o'rnatiladi va taxminan 5 daqiqa vaqt oladi.</div>
+        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q2')">Sovitishga xalaqit bermaydimi?<span class="arr">▼</span></button>
+        <div class="faq-a">Yo'q. Ekran havoni to'sish uchun emas, yo'nalishini o'zgartirish uchun ishlatiladi. Xona sovishda davom etadi, havo yuqoriga va xona bo'ylab yumshoqroq tarqaladi.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q3')">Konditsionerga zarar yetkazmaydimi?<span class="arr">▼</span></button>
-        <div class="faq-a">To'g'ri o'rnatilganda konditsionerga zarar yetkazmaydi. Yuzani tozalash va mahkamlash qismini to'g'ri joylashtirish muhim.</div>
+        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q3')">O'rnatish qanday bo'ladi?<span class="arr">▼</span></button>
+        <div class="faq-a">Komplektdagi mahkamlash qismlari yordamida o'rnatiladi. Ko'p hollarda bir necha daqiqada o'rnatiladi.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q4')">Havo sovitishiga xalaqit bermaydimi?<span class="arr">▼</span></button>
-        <div class="faq-a">Ekran havoni to'sish uchun emas, yo'nalishini o'zgartirish uchun ishlatiladi. Havo yuqoriga va xona bo'ylab yumshoqroq tarqaladi.</div>
+        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q4')">Usta chaqirish kerakmi?<span class="arr">▼</span></button>
+        <div class="faq-a">Ko'p holatda usta kerak emas. O'rnatish bir necha qadamdan iborat va konditsionerga zarar yetkazmaydi.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q5')">Oldindan to'lov bormi?<span class="arr">▼</span></button>
-        <div class="faq-a">Yo'q. Tovarni qabul qilganda to'laysiz.</div>
+        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q5')">To'lov qanday amalga oshiriladi?<span class="arr">▼</span></button>
+        <div class="faq-a">Mahsulot narxi 175 000 so'm. To'lov — mahsulotni qabul qilganda, naqd yoki karta orqali. To'lashdan oldin mahsulotni ko'rib chiqish mumkin. Oldindan to'lov yo'q.</div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q6')">Qancha kunda yetkazib beriladi?<span class="arr">▼</span></button>
-        <div class="faq-a">Hududingizga qarab odatda 1–3 kun ichida yetkazib berish mumkin. Aniq muddatni menejer aytadi.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q7')">Agar mos kelmasa nima bo'ladi?<span class="arr">▼</span></button>
-        <div class="faq-a">Moslik bo'yicha menejer oldindan aniqlashtiradi. Agar tovar mos kelmasa, qaytarish shartlari tushuntiriladi.</div>
+        <button class="faq-q" onclick="toggleFaq(this); trackEvent('faq_open','q6')">Buyurtmadan keyin nima bo'ladi?<span class="arr">▼</span></button>
+        <div class="faq-a">Arizangiz qabul qilinadi va menejer siz bilan bog'lanib, konditsionerga mosligini va yetkazib berish shartlarini tasdiqlaydi. Toshkent bo'ylab odatda keyingi kuni, hududlarga 1–3 kun ichida yetkaziladi. 14 kun ichida qaytarish shartlari mavjud.</div>
       </div>
     </div>
   </div>
@@ -1352,25 +1382,43 @@
 <section class="section order-bg" id="order" data-testid="order" style="padding-bottom:130px;">
   <div class="wrap" style="max-width:640px;">
     <div class="form-card">
-      <span class="tagline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Avval tekshirasiz — keyin to'laysiz</span>
-      <h3>Mosligini tekshirish uchun raqamingizni qoldiring</h3>
-      <p class="sub">Menejer qo'ng'iroq qiladi, narxni, moslikni va yetkazib berishni aytadi. Buyurtma majburiy emas.</p>
+      <span class="tagline"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Buyurtma — 175 000 so'm · Qabulda to'lov</span>
+      <h3>Buyurtmani rasmiylashtirish</h3>
+      <p class="sub">Ma'lumotlaringizni qoldiring. Menejer siz bilan bog'lanib, konditsionerga mosligini va yetkazib berish manzilini tasdiqlaydi.</p>
 
-      <!-- INSTANT CONTACT (hidden if env not set) -->
-      <div class="ic-row" id="instantContact" style="display:none;">
-        <a id="contactTg" href="#" target="_blank" rel="noopener" class="tg" style="display:none;" data-testid="tg-link" onclick="trackEvent('telegram_click','contact_row')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21.5 4.3L2.6 11.9c-1.2.5-1.2 1.2-.2 1.5l4.8 1.5 11.1-7c.5-.3 1-.1.6.2L9.9 16l-.3 4.6c.4 0 .6-.2.8-.4l2-1.9 4.1 3c.8.4 1.3.2 1.5-.7l2.8-13c.3-1.1-.4-1.6-1.3-1.3z"/></svg>
-          Telegramda yozish
-        </a>
-        <a id="contactTel" href="#" class="tel" style="display:none;" data-testid="tel-link" onclick="trackEvent('phone_click','contact_row')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.9.34 1.78.66 2.61a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.47-1.23a2 2 0 012.11-.45c.83.32 1.71.54 2.61.66a2 2 0 011.72 2.03z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Qo'ng'iroq qilish
-        </a>
+      <!-- ORDER SUMMARY (visible above the form) -->
+      <div class="order-summary" data-testid="order-summary">
+        <div class="os-row">
+          <div class="os-lbl">Mahsulot</div>
+          <div class="os-val">Konditsioner himoya ekrani</div>
+        </div>
+        <div class="os-row">
+          <div class="os-lbl">Miqdori</div>
+          <div class="os-val">1 dona</div>
+        </div>
+        <div class="os-row os-price">
+          <div class="os-lbl">Narxi</div>
+          <div class="os-val"><b>175 000 so'm</b></div>
+        </div>
+        <div class="os-row">
+          <div class="os-lbl">To'lov</div>
+          <div class="os-val">Mahsulotni qabul qilganda</div>
+        </div>
+        <div class="os-row">
+          <div class="os-lbl">Yetkazib berish</div>
+          <div class="os-val">O'zbekiston bo'ylab</div>
+        </div>
       </div>
 
       <div id="formSuccess" class="form-success" data-testid="form-success">
-        <h3>Rahmat!</h3>
-        <p>Buyurtmangiz qabul qilindi. Menejer tez orada siz bilan bog'lanadi.</p>
+        <h3>Buyurtmangiz qabul qilindi</h3>
+        <p>Menejer buyurtma, konditsionerga moslik va yetkazib berish manzilini tasdiqlash uchun siz bilan bog'lanadi. Iltimos, telefoningizni yaqin tuting.</p>
+        <div class="success-summary">
+          <div><span>Mahsulot:</span> <b>Konditsioner himoya ekrani</b></div>
+          <div><span>Miqdori:</span> <b>1 dona</b></div>
+          <div><span>Narxi:</span> <b>175 000 so'm</b></div>
+          <div><span>To'lov:</span> <b>Qabul qilganda</b></div>
+        </div>
       </div>
 
       <form class="order-form" id="orderForm" data-testid="order-form" onsubmit="submitForm(event)" novalidate>
@@ -1381,7 +1429,7 @@
         </div>
         <div class="form-group" id="grp-phone">
           <label for="fphone">Telefon raqamingiz *</label>
-          <input type="tel" id="fphone" name="phone" placeholder="+998 __ ___ __ __" autocomplete="tel" maxlength="17" data-testid="input-phone" />
+          <input type="tel" id="fphone" name="phone" placeholder="+998 __ ___ __ __" autocomplete="tel" inputmode="tel" maxlength="17" data-testid="input-phone" />
           <span class="form-err">To'g'ri telefon raqam kiriting (+998XXXXXXXXX)</span>
         </div>
         <div class="form-group" id="grp-city">
@@ -1407,14 +1455,14 @@
         </div>
         <div class="form-group">
           <label for="fwidth">Konditsioner kengligi (ixtiyoriy)</label>
-          <input type="text" id="fwidth" name="width" placeholder="Masalan: 80 sm yoki bilmayman" data-testid="input-width" />
-          <span class="field-hint">Bilmasangiz ham bo'ladi — menejer aniqlashtiradi.</span>
+          <input type="text" id="fwidth" name="width" placeholder="Masalan: 80 sm yoki bilmayman" inputmode="text" data-testid="input-width" />
+          <span class="field-hint">Bilmasangiz ham bo'ladi — menejer tasdiqlash vaqtida aniqlashtiradi.</span>
         </div>
         <button type="submit" class="btn btn-green" data-testid="submit-btn">
-          Menejer qo'ng'iroq qilsin
+          Buyurtma berish — 175 000 so'm
           <svg class="arrow" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <p class="form-note">Avval ma'lumot olasiz, keyin qaror qilasiz.</p>
+        <p class="form-note">Arizani yuborish bilan 175 000 so'mlik narx va mahsulotni qabul qilganda to'lov shartlarini tushunganingizni tasdiqlaysiz.</p>
       </form>
     </div>
   </div>
@@ -1423,25 +1471,26 @@
 <!-- ===== FOOTER ===== -->
 <footer data-testid="footer">
   <p><b>O'zbekiston Respublikasi hududida yetkazib berish</b></p>
-  <p>Tovar mavjudligi va shartlar operator tomonidan tasdiqlanadi</p>
+  <p>Mahsulot narxi: <b>175 000 so'm</b> · To'lov mahsulotni qabul qilganda</p>
+  <p>Aniq moslik va yetkazib berish menejer tomonidan tasdiqlanadi</p>
   <p style="margin-top:10px;">
     <a href="#" onclick="trackEvent('footer','privacy')">Maxfiylik siyosati</a> &nbsp;·&nbsp;
     <a href="#" onclick="trackEvent('footer','oferta')">Oferta</a>
   </p>
-  <p style="margin-top:12px; font-size:11px;">© 2025 Barcha huquqlar himoyalangan</p>
+  <p style="margin-top:12px; font-size:11px;">© 2026 Barcha huquqlar himoyalangan</p>
 </footer>
 
 <!-- ===== STICKY MOBILE CTA ===== -->
 <div class="sticky" id="stickyCta" data-testid="sticky-cta" style="display:none;">
   <div class="sticky-info">
-    <div class="name">Himoya ekrani</div>
+    <div class="name">Himoya ekrani · 175 000 so'm</div>
     <div class="pay">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Qabul qilganda to'lash
+      Qabul qilganda to'lov
     </div>
   </div>
   <button class="btn btn-primary" id="stickyBtn" data-testid="sticky-btn" onclick="scrollToOrder(); trackEvent('sticky_cta_click','sticky')">
-    Mosligini tekshirish
+    Buyurtma — 175 000 so'm
   </button>
 </div>
 
@@ -1460,21 +1509,11 @@
     if (s.indexOf("%" + "VITE_") === 0) return ""; // placeholder not replaced -> treat as empty
     return s;
   }
-  var ENV = {
-    TELEGRAM_URL: readEnv("%VITE_TELEGRAM_URL%"),
-    PHONE_NUMBER: readEnv("%VITE_PHONE_NUMBER%")
-  };
+  var ENV = {};
 
-  // Instant contact (auto-hidden if env not configured)
-  (function setupContacts(){
-    var wrap = document.getElementById('instantContact');
-    var tg   = document.getElementById('contactTg');
-    var tel  = document.getElementById('contactTel');
-    var any = false;
-    if (ENV.TELEGRAM_URL) { tg.href = ENV.TELEGRAM_URL; tg.style.display = ''; any = true; }
-    if (ENV.PHONE_NUMBER) { tel.href = 'tel:' + ENV.PHONE_NUMBER.replace(/[^\d+]/g,''); tel.style.display = ''; any = true; }
-    wrap.style.display = any ? '' : 'none';
-  })();
+  // Telegram/Phone CTAs intentionally removed from the page — CPA flow optimizes for
+  // self-submitted orders, not call-back requests. Operator contact happens AFTER
+  // the order is submitted, never before.
 
   // ===== Tracking params (UTM + click ids) — persist across page loads =====
   var TRACK_KEYS = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content',
