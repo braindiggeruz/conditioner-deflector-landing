@@ -1,0 +1,11 @@
+name = "conditioner-deflector-landing"
+pages_build_output_dir = "./dist"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# KV: stores event_id -> { phone, name, fbp, fbc, ip, ua, event_source_url, ts }
+# Used by /api/buyo-poll to match approved BUYO leads back to original Meta event_id
+# and upload offline Purchase conversions to Meta CAPI.
+[[kv_namespaces]]
+binding = "LEAD_EVENTS"
+id = "fbd1816af5014ab2973e7d3a14c273d8"
