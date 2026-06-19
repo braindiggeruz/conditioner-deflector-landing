@@ -29,9 +29,9 @@ const LAST_POLL_KEY = 'cron:last_poll_iso';
 const PROCESSED_PREFIX = 'processed:';
 
 async function fetchApprovedLeads(env, sinceIso) {
-  // BUYO GET /api/v1/leads supports `statuses[]=approved` and `since` (YYYY-MM-DD).
-  // Per BUYO docs the GET uses JSON body for params; tested form also works via query.
-  const url = env.BUYO_API_URL || 'https://api.buyo.network/api/v1/leads';
+  // BUYO GET /api/v1/leads. Docs say JSON body, but Cloudflare Workers fetch
+  // disallows body in GET — so we send via query params (standard REST).
+  const baseUrl = env.BUYO_API_URL || 'https://api.buyo.network/api/v1/leads';
   const sinceDate = sinceIso ? sinceIso.slice(0, 10) : new Date(Date.now() - 7 * 86400e3).toISOString().slice(0, 10);
 
   const all = [];
@@ -39,22 +39,22 @@ async function fetchApprovedLeads(env, sinceIso) {
   const maxPages = 20; // safety
 
   while (page <= maxPages) {
-    const res = await fetch(url, {
+    const qs = new URLSearchParams();
+    qs.append('statuses[]', 'approved');
+    if (env.BUYO_FLOW_ID) qs.append('flow_ids[]', env.BUYO_FLOW_ID);
+    qs.set('since', sinceDate);
+    qs.set('page', String(page));
+
+    const res = await fetch(`${baseUrl}?${qs.toString()}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${env.BUYO_API_KEY}`,
-        'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify({
-        statuses: ['approved'],
-        flow_ids: env.BUYO_FLOW_ID ? [env.BUYO_FLOW_ID] : undefined,
-        since: sinceDate,
-        page,
-      }),
     });
     if (!res.ok) {
-      throw new Error(`buyo_get_${res.status}`);
+      const text = await res.text();
+      throw new Error(`buyo_get_${res.status}_${text.slice(0, 120)}`);
     }
     const data = await res.json();
     const leads = data?.data?.leads || [];
