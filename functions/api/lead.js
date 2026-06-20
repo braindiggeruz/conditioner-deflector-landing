@@ -215,9 +215,11 @@ async function persistLead(env, key, value) {
   }
 }
 
-// Detect a recent duplicate phone submit (anti-fraud + accidental double-tap).
+// Detect a very-recent duplicate phone submit (defends only against accidental
+// double-tap / page-refresh). BUYO itself dedupes longer-term duplicates and
+// surfaces them to operators as "Треш", so we only need a short window here.
 // Returns true if same phone was submitted within last `windowSec` seconds.
-async function isPhoneDuplicateWindow(env, phone, windowSec = 86400) {
+async function isPhoneDuplicateWindow(env, phone, windowSec = 30) {
   if (!env.LEAD_EVENTS) return false;
   try {
     const phoneKey = `phone:${phone.replace(/\D/g, '')}`;
@@ -296,10 +298,13 @@ export const onRequestPost = async ({ request, env }) => {
   const event_source_url = sanitize(body.page_url, 500) || request.headers.get('Referer') || '';
 
   // ---- Duplicate-window check (silent block) ----
-  const isDuplicate = await isPhoneDuplicateWindow(env, phone, 86400); // 24h
+  // Narrow 30s window: protects ONLY against accidental double-tap / page-refresh
+  // re-submits. Real users who come back later (5 min, 1h, next day) MUST be
+  // allowed through — BUYO surfaces longer-term duplicates via its "Треш" filter.
+  const isDuplicate = await isPhoneDuplicateWindow(env, phone, 30);
   if (isDuplicate) {
-    console.log(JSON.stringify({ stage: 'phone_duplicate_window', event_id }));
-    // Silent success response — do not send to BUYO again, do not fire Meta Lead.
+    console.log(JSON.stringify({ stage: 'phone_duplicate_window_30s', event_id }));
+    // Silent success — same lead already in BUYO pipeline, no need to re-fire.
     return json({ ok: true, event_id, meta: 'duplicate_silent' });
   }
 
