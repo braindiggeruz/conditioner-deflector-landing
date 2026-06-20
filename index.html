@@ -1658,6 +1658,7 @@ function toggleFaq(btn) {
 // ===== Scroll to order =====
 function scrollToOrder() {
   trackEvent('cta_click', 'scroll_to_order');
+  startFormTimerIfNeeded();
   document.getElementById('order').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -1702,6 +1703,7 @@ function quizRestart() {
 }
 function quizToOrder() {
   trackEvent('quiz_to_order', quizState.ac_type + '_' + (quizState.ac_mount || ''));
+  startFormTimerIfNeeded();
   scrollToOrder();
   setTimeout(function(){
     var n = document.getElementById('fname');
@@ -1739,12 +1741,21 @@ quizShowStep('1');
 })();
 
 // ===== Form-fill timing (anti-bot signal) =====
+// Server-side anti-bot (functions/api/lead.js) silently swallows fill_ms < 2500.
+// We add a 3000ms minimum client guard so genuinely-fast humans (autofill, fast typers,
+// CTA-jump-to-form users) never fall below the threshold and lose their lead to BUYO.
 var formStartedAt = 0;
+var FILL_MS_FLOOR = 3000;
 document.addEventListener('focusin', function(e){
   if (formStartedAt === 0 && e.target && e.target.closest && e.target.closest('#orderForm')) {
     formStartedAt = Date.now();
   }
 });
+// Also start the timer when the user clicks any CTA that scrolls to the form,
+// so even autofill / very-fast users get credit for time-on-page.
+function startFormTimerIfNeeded() {
+  if (formStartedAt === 0) formStartedAt = Date.now();
+}
 
 // ===== Form submit =====
 var lastSubmitPhone = '';
@@ -1838,8 +1849,20 @@ async function submitForm(e) {
 
   setSubmitting(true);
   leadInFlight = true;
+
+  // Guard: ensure fill_ms always >= FILL_MS_FLOOR before we send.
+  // This is the #1 reason leads were silently swallowed by the server's
+  // anti-bot fill_ms check. Real users (especially with autofill) can
+  // finish the 3-field form in < 2s, so we artificially wait the remainder.
+  var elapsedMs = formStartedAt > 0 ? (Date.now() - formStartedAt) : 0;
+  if (formStartedAt > 0 && elapsedMs < FILL_MS_FLOOR) {
+    await new Promise(function(r){ setTimeout(r, FILL_MS_FLOOR - elapsedMs); });
+  }
+
   var ok = false, result = null;
   try {
+    // Recompute fill_ms NOW (after the wait) so the server gets the truthful elapsed time.
+    payload.fill_ms = formStartedAt > 0 ? (Date.now() - formStartedAt) : 0;
     var res = await fetch('/api/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
