@@ -1,0 +1,13 @@
+name = "buyo-poll-cron"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[triggers]
+# Run every hour at minute 5 (gives BUYO 5 minutes after the hour to update
+# its approved-lead pipeline before we poll). Free plan allows 5min granularity
+# but hourly is plenty for COD approval workflow.
+crons = ["5 * * * *"]
+
+[observability]
+enabled = true
