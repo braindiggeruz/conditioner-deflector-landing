@@ -96,6 +96,33 @@ function sanitize(s, max = 500) {
   return String(s).slice(0, max);
 }
 
+// ---- Debug observability ring buffer ----
+// Stores the last N lead attempts (without PII) so the operator can verify
+// in real-time WHY a given submit did or did not reach BUYO.
+// GET /api/debug-recent (X-Debug-Token: CRON_SECRET) returns the buffer.
+const DEBUG_BUFFER_KEY = 'debug:recent';
+const DEBUG_BUFFER_LIMIT = 50;
+
+function maskPhone(p) {
+  if (!p) return '';
+  const d = String(p).replace(/\D/g, '');
+  if (d.length < 6) return '***';
+  return d.slice(0, 5) + '***' + d.slice(-2);
+}
+
+async function recordAttempt(env, partial) {
+  if (!env.LEAD_EVENTS) return;
+  try {
+    const cur = await env.LEAD_EVENTS.get(DEBUG_BUFFER_KEY);
+    const arr = cur ? (JSON.parse(cur) || []) : [];
+    arr.unshift({ ts: Date.now(), at: new Date().toISOString(), ...partial });
+    while (arr.length > DEBUG_BUFFER_LIMIT) arr.pop();
+    await env.LEAD_EVENTS.put(DEBUG_BUFFER_KEY, JSON.stringify(arr));
+  } catch (e) {
+    console.log(JSON.stringify({ stage: 'debug_record_failed', err: String(e).slice(0,200) }));
+  }
+}
+
 function normalizeCityForMatch(city) {
   // Strip "shahri", "viloyati"; lowercase. Used only for CAPI hash.
   return String(city || '')
@@ -244,14 +271,17 @@ export const onRequestPost = async ({ request, env }) => {
   // ---- Honeypot: hidden field that must remain empty ----
   if (body._hp && String(body._hp).trim().length > 0) {
     console.log(JSON.stringify({ stage: 'honeypot_triggered' }));
+    await recordAttempt(env, { outcome: 'honeypot_triggered', phone_masked: maskPhone(body.phone) });
     // Silently respond ok to avoid revealing the trap to bots
     return json({ ok: true, event_id: 'bot_silenced' });
   }
 
-  // ---- Form-fill speed: < 2.5s is bot-like ----
+  // ---- Form-fill speed: < 0.5s is clearly automated (humans need >0.5s even to tap "submit") ----
+  // Client-side guarantees >= 3s. This server check is a final safety net.
   const fillMs = Number(body.fill_ms || 0);
-  if (fillMs > 0 && fillMs < 2500) {
+  if (fillMs > 0 && fillMs < 500) {
     console.log(JSON.stringify({ stage: 'fill_too_fast', fill_ms: fillMs }));
+    await recordAttempt(env, { outcome: 'fill_too_fast', fill_ms: fillMs, phone_masked: maskPhone(body.phone) });
     return json({ ok: true, event_id: 'bot_silenced' });
   }
 
@@ -264,14 +294,15 @@ export const onRequestPost = async ({ request, env }) => {
   const acPanel = sanitize(body.ac_panel, 40).trim();
   const acMount = sanitize(body.ac_mount, 40).trim();
 
-  if (name.length < 2) return json({ ok: false, error: 'invalid_name' }, 400);
-  if (!phone) return json({ ok: false, error: 'invalid_phone' }, 400);
-  if (!city) return json({ ok: false, error: 'invalid_city' }, 400);
+  if (name.length < 2) { await recordAttempt(env, { outcome: 'invalid_name', phone_masked: maskPhone(body.phone) }); return json({ ok: false, error: 'invalid_name' }, 400); }
+  if (!phone) { await recordAttempt(env, { outcome: 'invalid_phone_format', phone_masked: maskPhone(body.phone) }); return json({ ok: false, error: 'invalid_phone' }, 400); }
+  if (!city) { await recordAttempt(env, { outcome: 'invalid_city', phone_masked: maskPhone(phone) }); return json({ ok: false, error: 'invalid_city' }, 400); }
 
   // ---- UZ phone pattern blacklist ----
   const patternIssue = isPhonePatternSuspect(phone);
   if (patternIssue) {
     console.log(JSON.stringify({ stage: 'phone_pattern_rejected', issue: patternIssue }));
+    await recordAttempt(env, { outcome: 'phone_pattern_rejected', issue: patternIssue, phone_masked: maskPhone(phone) });
     return json({ ok: false, error: 'invalid_phone' }, 400);
   }
 
@@ -280,15 +311,18 @@ export const onRequestPost = async ({ request, env }) => {
   // but double-check on server in case form was tampered.
   if (acType && (acType === 'window' || acType === 'floor')) {
     console.log(JSON.stringify({ stage: 'incompatible_ac_blocked', type: acType }));
+    await recordAttempt(env, { outcome: 'incompatible_ac', ac_type: acType, phone_masked: maskPhone(phone) });
     return json({ ok: false, error: 'incompatible_ac' }, 400);
   }
 
   if (!env.BUYO_API_KEY || !env.BUYO_FLOW_ID) {
+    await recordAttempt(env, { outcome: 'buyo_config_missing', phone_masked: maskPhone(phone) });
     return json({ ok: false, error: 'buyo_config_missing' }, 500);
   }
 
   const ip = pickIp(request);
   if (!ip) {
+    await recordAttempt(env, { outcome: 'no_client_ip', phone_masked: maskPhone(phone) });
     return json({ ok: false, error: 'no_client_ip' }, 500);
   }
   const ua = request.headers.get('User-Agent') || sanitize(body.user_agent, 500);
@@ -304,6 +338,7 @@ export const onRequestPost = async ({ request, env }) => {
   const isDuplicate = await isPhoneDuplicateWindow(env, phone, 30);
   if (isDuplicate) {
     console.log(JSON.stringify({ stage: 'phone_duplicate_window_30s', event_id }));
+    await recordAttempt(env, { outcome: 'duplicate_30s', event_id, phone_masked: maskPhone(phone) });
     // Silent success — same lead already in BUYO pipeline, no need to re-fire.
     return json({ ok: true, event_id, meta: 'duplicate_silent' });
   }
@@ -342,6 +377,7 @@ export const onRequestPost = async ({ request, env }) => {
 
   if (!buyo.ok) {
     console.log(JSON.stringify({ stage: 'buyo_rejected', event_id, status: buyo.status, reason: buyo.reason }));
+    await recordAttempt(env, { outcome: 'buyo_rejected', reason: buyo.reason, http_status: buyo.status, event_id, phone_masked: maskPhone(phone), city });
     return json({ ok: false, error: buyo.reason || 'buyo_failed' }, 502);
   }
   console.log(JSON.stringify({ stage: 'buyo_success', event_id, status: buyo.status, buyo_lead_id: buyo.lead_id || null }));
@@ -410,6 +446,13 @@ export const onRequestPost = async ({ request, env }) => {
   if (buyo.lead_id) {
     await persistLead(env, `buyo:${buyo.lead_id}`, leadCtx);
   }
+  await recordHappyPath(env, {
+    event_id,
+    buyo_lead_id: buyo.lead_id || null,
+    capi: metaStatus,
+    phone_masked: maskPhone(phone),
+    city,
+  });
 
   return json({
     ok: true,
@@ -417,3 +460,19 @@ export const onRequestPost = async ({ request, env }) => {
     meta: metaStatus,
   });
 };
+
+// ---------------------------------------------------------------------------
+// Final-attempt recorder for the happy path.
+// We hook this at the very end so the debug buffer reflects what BUYO accepted.
+// Placed below the handler so the closure captures the same KV binding.
+// ---------------------------------------------------------------------------
+async function recordHappyPath(env, ctx) {
+  await recordAttempt(env, {
+    outcome: 'sent_to_buyo',
+    event_id: ctx.event_id,
+    buyo_lead_id: ctx.buyo_lead_id,
+    capi: ctx.capi,
+    phone_masked: ctx.phone_masked,
+    city: ctx.city,
+  });
+}
