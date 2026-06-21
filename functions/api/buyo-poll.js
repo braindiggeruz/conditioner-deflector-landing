@@ -88,8 +88,12 @@ async function sendMetaPurchase(env, ctx, buyoLead) {
   if (ctx.ip) user_data.client_ip_address = ctx.ip;
   if (ctx.user_agent) user_data.client_user_agent = ctx.user_agent;
   if (ctx.phone_hash) user_data.ph = [ctx.phone_hash];
-  if (ctx.name_hash) user_data.fn = [ctx.name_hash];
+  // Backwards-compat: legacy KV rows used `name_hash` (full name). New rows use fn_hash + ln_hash.
+  if (ctx.fn_hash) user_data.fn = [ctx.fn_hash];
+  else if (ctx.name_hash) user_data.fn = [ctx.name_hash];
+  if (ctx.ln_hash) user_data.ln = [ctx.ln_hash];
   if (ctx.city_hash) user_data.ct = [ctx.city_hash];
+  if (ctx.state_hash) user_data.st = [ctx.state_hash];
   if (ctx.country_hash) user_data.country = [ctx.country_hash];
   if (ctx.external_id_hash) user_data.external_id = [ctx.external_id_hash];
   if (ctx.fbp) user_data.fbp = ctx.fbp;

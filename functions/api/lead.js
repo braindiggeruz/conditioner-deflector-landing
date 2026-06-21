@@ -132,6 +132,46 @@ function normalizeCityForMatch(city) {
     .trim();
 }
 
+// ISO-3166-2:UZ subdivision codes lowercased (without country prefix), used for `st` field.
+// Meta's docs: "A two-letter state code in lowercase." (US convention); for non-US
+// regions, ISO 3166-2 subdivision code is the closest standard.
+const UZ_STATE_BY_CITY = {
+  toshkent: 'tk',
+  toshkentshahri: 'tk',
+  toshkentviloyati: 'to',
+  samarqand: 'sa',
+  buxoro: 'bu',
+  fargona: 'fa',
+  "farg'ona": 'fa',
+  fargʻona: 'fa',
+  andijon: 'an',
+  namangan: 'ng',
+  qashqadaryo: 'qa',
+  surxondaryo: 'su',
+  jizzax: 'ji',
+  sirdaryo: 'si',
+  navoiy: 'nw',
+  xorazm: 'xo',
+  qoraqalpogiston: 'qr',
+  "qoraqalpog'iston": 'qr',
+  qoraqalpogʻiston: 'qr',
+};
+function deriveUzState(city) {
+  const key = normalizeCityForMatch(city);
+  return UZ_STATE_BY_CITY[key] || key.slice(0, 2);
+}
+
+// Split a free-form full name into first + last for Meta's `fn` / `ln` fields.
+// "Asror Karimov"     -> { fn: "asror", ln: "karimov" }
+// "Madina Otaboyeva A." -> { fn: "madina", ln: "otaboyeva a" }
+// "Ali"               -> { fn: "ali",   ln: "" }
+function splitName(full) {
+  const parts = String(full || '').trim().split(/\s+/).filter(Boolean);
+  const fn = (parts[0] || '').toLowerCase();
+  const ln = (parts.slice(1).join(' ') || '').toLowerCase().replace(/[^a-z0-9'`ʻʼ\u0400-\u04ff\s-]/g, '').trim();
+  return { fn, ln };
+}
+
 async function sendToBuyo(env, payload) {
   const url = env.BUYO_API_URL || 'https://api.buyo.network/api/v1/leads';
   const body = new URLSearchParams();
@@ -189,8 +229,10 @@ async function sendMetaCapi(env, ev) {
   if (ev.ip) user_data.client_ip_address = ev.ip;
   if (ev.user_agent) user_data.client_user_agent = ev.user_agent;
   if (ev.phone_hash) user_data.ph = [ev.phone_hash];
-  if (ev.name_hash) user_data.fn = [ev.name_hash];
+  if (ev.fn_hash) user_data.fn = [ev.fn_hash];
+  if (ev.ln_hash) user_data.ln = [ev.ln_hash];
   if (ev.city_hash) user_data.ct = [ev.city_hash];
+  if (ev.state_hash) user_data.st = [ev.state_hash];
   if (ev.country_hash) user_data.country = [ev.country_hash];
   if (ev.external_id_hash) user_data.external_id = [ev.external_id_hash];
   if (ev.fbp) user_data.fbp = ev.fbp;
@@ -386,13 +428,21 @@ export const onRequestPost = async ({ request, env }) => {
   const phoneDigits = phone.replace(/\D/g, ''); // 998XXXXXXXXX
   const fbp = sanitize(body.fbp, 200);
   const fbc = sanitize(body.fbc, 200);
-  const [phone_hash, name_hash, city_hash, country_hash, external_id_hash] = await Promise.all([
+  const { fn: firstName, ln: lastName } = splitName(name);
+  const cityNorm = normalizeCityForMatch(city);
+  const stateNorm = deriveUzState(city);
+  const [phone_hash, fn_hash, ln_hash, city_hash, state_hash, country_hash] = await Promise.all([
     sha256Hex(phoneDigits),
-    sha256Hex(name),
-    sha256Hex(normalizeCityForMatch(city)),
+    firstName ? sha256Hex(firstName) : Promise.resolve(''),
+    lastName ? sha256Hex(lastName) : Promise.resolve(''),
+    sha256Hex(cityNorm),
+    sha256Hex(stateNorm),
     sha256Hex('uz'),
-    sha256Hex(event_id), // external_id = own event_id, helps Meta dedup across devices
   ]);
+  // external_id = phone hash. Same person across sessions/devices = same external_id,
+  // which lets Meta link Lead<->Purchase in their identity graph and unlocks
+  // much higher match-quality scoring.
+  const external_id_hash = phone_hash;
 
   const meta = await sendMetaCapi(env, {
     event_id,
@@ -400,8 +450,10 @@ export const onRequestPost = async ({ request, env }) => {
     ip,
     user_agent: ua,
     phone_hash,
-    name_hash,
+    fn_hash,
+    ln_hash,
     city_hash,
+    state_hash,
     country_hash,
     external_id_hash,
     fbp,
@@ -428,8 +480,10 @@ export const onRequestPost = async ({ request, env }) => {
     event_id,
     phone_digits: phoneDigits,
     phone_hash,
-    name_hash,
+    fn_hash,
+    ln_hash,
     city_hash,
+    state_hash,
     country_hash,
     external_id_hash,
     fbp,

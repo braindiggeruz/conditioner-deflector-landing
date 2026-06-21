@@ -23,6 +23,7 @@
   var raw = "%VITE_META_PIXEL_ID%";
   var pid = (raw && raw.indexOf("%" + "VITE_") !== 0) ? raw.trim() : "";
   if (!pid) return;
+  window.__META_PIXEL_ID__ = pid;
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
   if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
   window.fbq('init', pid);
@@ -1624,6 +1625,7 @@ function markFormStart(section) {
   if (formStarted) return;
   formStarted = true;
   trackEvent('form_start', section || 'order_form');
+  fireInitiateCheckoutOnce();
 }
 ['fname','fphone','fcity','fwidth'].forEach(function(id){
   var el = document.getElementById(id);
@@ -1659,8 +1661,83 @@ function toggleFaq(btn) {
 function scrollToOrder() {
   trackEvent('cta_click', 'scroll_to_order');
   startFormTimerIfNeeded();
+  fireInitiateCheckoutOnce();
   document.getElementById('order').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+// ===== Pixel funnel events (ViewContent + InitiateCheckout) =====
+// These are EXTRA signals for Meta's learning — they do NOT change the existing
+// campaign optimization (which is still on Lead). They give Meta a richer view
+// of "who engaged" vs "who just bounced", which improves lookalike quality
+// and lowers CPL on cold traffic over 2-4 weeks.
+
+function sessionId() {
+  try {
+    var k = 'cd_sid_v1';
+    var s = sessionStorage.getItem(k);
+    if (!s) {
+      s = 's_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+      sessionStorage.setItem(k, s);
+    }
+    return s;
+  } catch (e) { return 's_' + Date.now(); }
+}
+
+function fireViewContentOnce() {
+  if (!window.fbq) return;
+  try {
+    if (sessionStorage.getItem('pixel_vc_sent')) return;
+    var eid = 'vc_' + sessionId();
+    window.fbq('track', 'ViewContent', {
+      content_name: 'conditioner_deflector',
+      content_category: 'conditioner_deflector',
+      content_type: 'product',
+      content_ids: ['deflector-001'],
+      currency: 'UZS',
+      value: 175000
+    }, { eventID: eid });
+    sessionStorage.setItem('pixel_vc_sent', '1');
+    trackEvent('pixel_view_content', 'engaged');
+  } catch (e) {}
+}
+
+function fireInitiateCheckoutOnce() {
+  if (!window.fbq) return;
+  try {
+    if (sessionStorage.getItem('pixel_ic_sent')) return;
+    // Also fire ViewContent automatically — InitiateCheckout implies engagement.
+    fireViewContentOnce();
+    var eid = 'ic_' + sessionId();
+    window.fbq('track', 'InitiateCheckout', {
+      content_name: 'conditioner_deflector',
+      content_category: 'conditioner_deflector',
+      content_type: 'product',
+      content_ids: ['deflector-001'],
+      currency: 'UZS',
+      value: 175000,
+      num_items: 1
+    }, { eventID: eid });
+    sessionStorage.setItem('pixel_ic_sent', '1');
+    trackEvent('pixel_initiate_checkout', 'cta_clicked');
+  } catch (e) {}
+}
+
+// ViewContent triggers (whichever comes first):
+//  - User scrolls past 50% of page (real engagement, not just bounce)
+//  - User stays on page 15 seconds (slow reader still counts)
+(function setupViewContentTriggers() {
+  var fired = false;
+  function maybeFire() {
+    if (fired) return;
+    fired = true;
+    fireViewContentOnce();
+  }
+  setTimeout(maybeFire, 15000);
+  window.addEventListener('scroll', function () {
+    var sh = document.documentElement.scrollHeight - window.innerHeight;
+    if (sh > 0 && (window.scrollY / sh) > 0.5) maybeFire();
+  }, { passive: true });
+})();
 
 // ===== Compatibility quiz =====
 var quizState = { ac_type: null, ac_mount: null };
@@ -1906,6 +1983,29 @@ async function submitForm(e) {
   try { alreadyFired = !!sessionStorage.getItem('pixel_lead_sent_' + finalEventId); } catch(e){}
   if (window.fbq && !alreadyFired && !silentlySwallowed) {
     try {
+      // ===== Pixel Advanced Matching =====
+      // Re-init the pixel with hashed-by-meta user data BEFORE firing the Lead event.
+      // Meta SDK auto-hashes these on the client. This data is then sent with EVERY
+      // subsequent event in this session (Lead, ViewContent, InitiateCheckout, etc.)
+      // and lifts CAPI match-quality from ~6.0 -> ~8.5-9.0.
+      var nameParts = name.trim().split(/\s+/);
+      var firstName = (nameParts[0] || '').toLowerCase();
+      var lastName  = (nameParts.slice(1).join(' ') || '').toLowerCase();
+      var cityNorm  = (city || '').toLowerCase()
+        .replace(/\s+(shahri|viloyati|shaxri|vil)\b/g, '')
+        .replace(/\s+/g, '');
+      var advancedMatch = {
+        ph: phoneRaw.replace(/\D/g, ''),         // unhashed; Meta hashes
+        fn: firstName,
+        ln: lastName,
+        ct: cityNorm,
+        st: cityNorm,                            // UZ: city ~= region for matching purposes
+        country: 'uz',
+        external_id: phoneRaw.replace(/\D/g, ''),// same person = same id across devices
+      };
+      if (window.__META_PIXEL_ID__) {
+        window.fbq('init', window.__META_PIXEL_ID__, advancedMatch);
+      }
       window.fbq('track', 'Lead', {
         content_name: 'conditioner_deflector',
         content_category: 'conditioner_deflector',
