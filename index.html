@@ -17,17 +17,33 @@
 <link rel="preconnect" href="https://www.facebook.com" />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
-<!-- ===== Meta Pixel (loaded only if VITE_META_PIXEL_ID is set by Vite at build) ===== -->
+<!-- ===== Meta Pixel (runtime-loaded from /api/config so it works regardless of build env) ===== -->
 <script>
 (function(){
+  // Bootstrap fbq queue immediately so events fired before pixel init are not lost.
+  if (!window.fbq) {
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  }
+  function bootPixel(pid) {
+    if (!pid) return;
+    window.__META_PIXEL_ID__ = pid;
+    try {
+      window.fbq('init', pid);
+      window.fbq('track', 'PageView');
+    } catch(e) {}
+  }
+  // 1) Build-time substitution (legacy path — works if VITE_META_PIXEL_ID was set)
   var raw = "%VITE_META_PIXEL_ID%";
   var pid = (raw && raw.indexOf("%" + "VITE_") !== 0) ? raw.trim() : "";
-  if (!pid) return;
-  window.__META_PIXEL_ID__ = pid;
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  window.fbq('init', pid);
-  window.fbq('track', 'PageView');
+  if (pid) { bootPixel(pid); return; }
+  // 2) Runtime fetch from server env (works on any deploy method)
+  try {
+    fetch('/api/config', { credentials: 'omit' })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){ if (j && j.pixel_id) bootPixel(j.pixel_id); })
+      .catch(function(){});
+  } catch(e) {}
 })();
 </script>
 
