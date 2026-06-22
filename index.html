@@ -10,12 +10,14 @@
 <meta property="og:title" content="Konditsioner himoya ekrani — Sovuq shamol endi urmaydi" />
 <meta property="og:description" content="Narxi: 175 000 so'm. Qabulda to'lov. O'zbekiston bo'ylab yetkaziladi." />
 <meta property="og:type" content="product" />
-<meta property="og:image" content="/img/hero-living-room.png" />
-<link rel="preload" as="image" href="/img/hero-living-room.png" fetchpriority="high" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<meta property="og:image" content="/img/hero-living-room.webp" />
+<link rel="preload" as="image" href="/img/hero-living-room.webp" fetchpriority="high" type="image/webp" />
+<link rel="preconnect" href="https://connect.facebook.net" />
 <link rel="preconnect" href="https://www.facebook.com" />
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<!-- Fonts: system stack only (instant render on UZ 3G). Manrope removed —
+     saves ~200-400ms blocking RTT to fonts.googleapis.com + ~50-80KB font weight.
+     The system stack below renders natively on iOS Safari, Android Chrome, IG/FB
+     in-app browsers without any FOIT/FOUT. -->
 
 <!-- ===== Meta Pixel — inline ID + runtime fallback ===== -->
 <script>
@@ -83,7 +85,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 body {
-  font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-weight: 500;
   font-size: 16px;
   line-height: 1.55;
@@ -989,7 +991,10 @@ section { padding: 32px 18px; }
   <p class="lede">Himoya ekrani sovuq oqimni yuqoriga yo'naltiradi. Xona soviydi — lekin shamol yuzga, divanga yoki bola yotgan joyga to'g'ri urmaydi.</p>
 
   <div class="hero-media">
-    <img src="/img/hero-living-room.png" alt="Konditsioner himoya ekrani — yashash xonasida shamol yo'naltirilgan ko'rinish" loading="eager" fetchpriority="high" data-testid="hero-image" />
+    <picture>
+      <source srcset="/img/hero-living-room.webp" type="image/webp" />
+      <img src="/img/hero-living-room.png" width="768" height="768" alt="Konditsioner himoya ekrani — yashash xonasida shamol yo'naltirilgan ko'rinish" loading="eager" fetchpriority="high" decoding="async" data-testid="hero-image" />
+    </picture>
     <div class="badge-guard">
       <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
       Qabulda to'lov
@@ -1104,7 +1109,10 @@ section { padding: 32px 18px; }
   <p class="section-lede">Ekran sovuq oqimni to'sib qo'ymaydi. U havoni yuqoriga buradi: xona soviydi, lekin shamol to'g'ri sizga urmaydi.</p>
 
   <div class="ba-card">
-    <img src="/img/before-after.png" alt="Konditsioner ekrandan oldin va keyin (Before vs After)" loading="lazy" data-testid="before-after-image" />
+    <picture>
+      <source srcset="/img/before-after.webp" type="image/webp" />
+      <img src="/img/before-after.png" width="768" height="768" alt="Konditsioner ekrandan oldin va keyin (Before vs After)" loading="lazy" decoding="async" data-testid="before-after-image" />
+    </picture>
   </div>
 
   <div class="benefits-grid">
@@ -1219,7 +1227,7 @@ section { padding: 32px 18px; }
   <p class="section-lede">Yumshoq plastik, perforatsiyalangan to'r va markazda mis rangli vint — hammasi ehtiyotkorlik bilan ishlangan.</p>
   <div class="gallery-strip">
     <div class="g-item">
-      <img src="/img/product-closeup.png" alt="Ekran yaqindan ko'rinish" loading="lazy" />
+      <picture><source srcset="/img/product-closeup.webp" type="image/webp" /><img src="/img/product-closeup.png" width="768" height="768" alt="Ekran yaqindan ko'rinish" loading="lazy" decoding="async" /></picture>
       <div class="g-caption">Yaqindan</div>
     </div>
     <div class="g-item">
@@ -1227,7 +1235,7 @@ section { padding: 32px 18px; }
       <div class="g-caption">O'rnatish — daqiqalar ichida</div>
     </div>
     <div class="g-item">
-      <img src="/img/hero-baby-night.png" alt="Bolalar xonasi — bola xavfsiz uxlaydi" loading="lazy" />
+      <picture><source srcset="/img/hero-baby-night.webp" type="image/webp" /><img src="/img/hero-baby-night.png" width="768" height="768" alt="Bolalar xonasi — bola xavfsiz uxlaydi" loading="lazy" decoding="async" /></picture>
       <div class="g-caption">Bolalar xonasi</div>
     </div>
     <div class="g-item">
@@ -1235,7 +1243,7 @@ section { padding: 32px 18px; }
       <div class="g-caption">Yotoqxona</div>
     </div>
     <div class="g-item">
-      <img src="/img/family-sofa.png" alt="Oilaviy xonada divan tagida" loading="lazy" />
+      <picture><source srcset="/img/family-sofa.webp" type="image/webp" /><img src="/img/family-sofa.png" width="768" height="768" alt="Oilaviy xonada divan tagida" loading="lazy" decoding="async" /></picture>
       <div class="g-caption">Mehmonxona, oila</div>
     </div>
     <div class="g-item">
