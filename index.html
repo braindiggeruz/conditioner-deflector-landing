@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="format-detection" content="telephone=no" />
 <title>Konditsioner himoya ekrani — 175 000 so'm · Qabulda to'lov | O'zbekiston</title>
-<meta name="description" content="Konditsioner shamoli endi sizga to'g'ridan urmaydi. Sovuq oqimni yuqoriga yo'naltiruvchi himoya ekrani. Bugungi narx 175 000 so'm (eski narx 250 000 so'm). Qabul qilganda to'laysiz. O'zbekiston bo'ylab yetkazib berish, 14 kun kafolat." />
+<meta name="description" content="Konditsioner shamoli endi sizga to'g'ridan urmaydi. Sovuq oqimni yuqoriga yo'naltiruvchi himoya ekrani. Narxi 175 000 so'm. Qabul qilganda to'laysiz. O'zbekiston bo'ylab yetkazib berish." />
 <meta name="theme-color" content="#0EA5E9" />
 <meta property="og:title" content="Konditsioner himoya ekrani — Sovuq shamol endi urmaydi" />
-<meta property="og:description" content="Bugun aksiya: 175 000 so'm (eski narx 250 000). Qabulda to'lov. 14 kun kafolat. O'zbekiston bo'ylab yetkaziladi." />
+<meta property="og:description" content="Narxi: 175 000 so'm. Qabulda to'lov. O'zbekiston bo'ylab yetkaziladi." />
 <meta property="og:type" content="product" />
 <meta property="og:image" content="/img/hero-living-room.png" />
 <link rel="preload" as="image" href="/img/hero-living-room.png" fetchpriority="high" />
@@ -17,33 +17,64 @@
 <link rel="preconnect" href="https://www.facebook.com" />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
-<!-- ===== Meta Pixel (runtime-loaded from /api/config so it works regardless of build env) ===== -->
+<!-- ===== Meta Pixel — inline ID + runtime fallback ===== -->
 <script>
 (function(){
-  // Bootstrap fbq queue immediately so events fired before pixel init are not lost.
+  // META_PIXEL_ID is public (visible to every facebook.com/tr ping anyway).
+  // Inlining it removes the /api/config fetch dependency that adds 100–800ms
+  // of latency on slow UZ 3G and can be blocked entirely inside the IG/FB
+  // in-app browser — causing PageView to never fire (which is why CPM looks
+  // higher than it should and Meta cannot attribute Lead to the ad).
+  var INLINE_PIXEL_ID = '2935651803447339';
+
+  // Bootstrap fbq queue immediately so events fired before init are not lost.
   if (!window.fbq) {
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
   }
+
+  // External ID for Advanced Matching at PageView time. We don't know the
+  // phone yet, but a stable per-browser id (persisted in localStorage)
+  // dramatically lifts Event Match Quality on iOS where _fbp/_fbc cookies
+  // are frequently stripped by ITP / IG in-app browser.
+  function stableExternalId() {
+    try {
+      var k = 'meta_ext_id_v1';
+      var v = localStorage.getItem(k);
+      if (!v) {
+        var rnd = (window.crypto && crypto.getRandomValues)
+          ? Array.from(crypto.getRandomValues(new Uint8Array(16))).map(function(b){return b.toString(16).padStart(2,'0');}).join('')
+          : (Date.now().toString(36) + Math.random().toString(36).slice(2, 18));
+        v = 'ext_' + rnd;
+        localStorage.setItem(k, v);
+      }
+      return v;
+    } catch(e) { return ''; }
+  }
+
   function bootPixel(pid) {
     if (!pid) return;
     window.__META_PIXEL_ID__ = pid;
     try {
-      window.fbq('init', pid);
+      // Single init with the stable external_id only — phone/email get added
+      // at Lead time via the optional 3rd arg of fbq('track', ...).
+      var advancedMatch = {};
+      var extId = stableExternalId();
+      if (extId) advancedMatch.external_id = extId;
+      window.fbq('init', pid, advancedMatch);
       window.fbq('track', 'PageView');
     } catch(e) {}
   }
-  // 1) Build-time substitution (legacy path — works if VITE_META_PIXEL_ID was set)
-  var raw = "%VITE_META_PIXEL_ID%";
-  var pid = (raw && raw.indexOf("%" + "VITE_") !== 0) ? raw.trim() : "";
-  if (pid) { bootPixel(pid); return; }
-  // 2) Runtime fetch from server env (works on any deploy method)
-  try {
-    fetch('/api/config', { credentials: 'omit' })
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(j){ if (j && j.pixel_id) bootPixel(j.pixel_id); })
-      .catch(function(){});
-  } catch(e) {}
+
+  // 1) Inline (always works — no network dependency)
+  bootPixel(INLINE_PIXEL_ID);
+
+  // 2) Build-time substitution (legacy fallback — only used if inline ID is somehow empty)
+  if (!window.__META_PIXEL_ID__) {
+    var raw = "%VITE_META_PIXEL_ID%";
+    var pid = (raw && raw.indexOf("%" + "VITE_") !== 0) ? raw.trim() : "";
+    if (pid) bootPixel(pid);
+  }
 })();
 </script>
 
@@ -386,6 +417,31 @@ section { padding: 32px 18px; }
 .testi-name { font-size: 12.5px; font-weight: 800; color: #0F172A; line-height: 1.1; }
 .testi-city { font-size: 11.5px; color: #64748B; font-weight: 600; }
 
+/* Honest trust cards (replacement for fake testimonials) */
+.trust-cards {
+  display: grid;
+  gap: 12px;
+}
+.trust-card-honest {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 1px 0 rgba(2,32,71,.02);
+}
+.trust-card-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+  display: grid; place-items: center;
+}
+.trust-card-icon svg { width: 22px; height: 22px; stroke: #1D4ED8; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.trust-card-title { font-size: 15px; font-weight: 800; color: #0F172A; margin: 4px 0 0; line-height: 1.3; }
+.trust-card-text  { font-size: 13.5px; color: #475569; line-height: 1.5; margin: 0; }
+
 /* Problem section */
 .section.problem { background: #FFFFFF; }
 .pain-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
@@ -725,6 +781,7 @@ section { padding: 32px 18px; }
   letter-spacing: 0.01em;
 }
 .field label .req { color: #DC2626; }
+.field label .opt { color: #94A3B8; font-weight: 600; font-size: 11.5px; }
 .field input, .field select {
   width: 100%;
   padding: 14px 14px;
@@ -927,25 +984,20 @@ section { padding: 32px 18px; }
 
 <!-- ============ HERO ============ -->
 <section class="hero" id="hero">
-  <span class="eyebrow"><span class="pip"></span> 2026 yil · O'zbekiston bo'ylab</span>
+  <span class="eyebrow"><span class="pip"></span> 2026 · O'zbekiston bo'ylab yetkazib berish</span>
   <h1 class="h1">Konditsioner shamoli <span class="hl">endi sizga to'g'ridan urmaydi</span></h1>
   <p class="lede">Himoya ekrani sovuq oqimni yuqoriga yo'naltiradi. Xona soviydi — lekin shamol yuzga, divanga yoki bola yotgan joyga to'g'ri urmaydi.</p>
 
   <div class="hero-media">
     <img src="/img/hero-living-room.png" alt="Konditsioner himoya ekrani — yashash xonasida shamol yo'naltirilgan ko'rinish" loading="eager" fetchpriority="high" data-testid="hero-image" />
-    <div class="badge-discount" data-testid="badge-discount">-30%<small>Bugun</small></div>
     <div class="badge-guard">
       <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
-      14 kun kafolat
+      Qabulda to'lov
     </div>
   </div>
 
   <div class="price-card" data-testid="price-card">
-    <div class="price-row">
-      <span class="price-old" data-testid="price-old">250 000 so'm</span>
-      <span class="price-tag">-30%</span>
-    </div>
-    <div class="price-row" style="margin-top:2px;">
+    <div class="price-row" style="margin-top:0;">
       <span class="price-new" data-testid="price-new">175 000 so'm</span>
     </div>
     <div class="price-sub">
@@ -954,22 +1006,11 @@ section { padding: 32px 18px; }
     </div>
   </div>
 
-  <div class="scarcity">
-    <div class="scarcity-card timer">
-      <span class="pulse-dot"></span>Aksiya tugashiga
-      <span class="scarcity-num" id="timer" data-testid="scarcity-timer">23:59:42</span>
-    </div>
-    <div class="scarcity-card stock">
-      Bu partiyadan qoldi
-      <span class="scarcity-num" id="stockCount" data-testid="scarcity-stock">47 dona</span>
-    </div>
-  </div>
-
   <button class="cta-primary" type="button" onclick="scrollToOrder()" data-testid="hero-cta">
     Buyurtma berish — 175 000 so'm <span class="arrow">→</span>
     <span class="sub">
       <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-      Qabulda to'lov · Tezda yetkaziladi
+      Qabulda to'lov · O'zbekiston bo'ylab yetkaziladi
     </span>
   </button>
   <div class="cta-sub-trust">
@@ -982,9 +1023,9 @@ section { padding: 32px 18px; }
       <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><circle cx="8" cy="15" r="1.5"/></svg>
       <span>Qabulda<br/><b>to'lov</b></span>
     </div>
-    <div class="trust-pill" data-testid="trust-guarantee">
-      <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>
-      <span>14 kun<br/><b>kafolat</b></span>
+    <div class="trust-pill" data-testid="trust-check">
+      <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+      <span>Avval ko'rasiz<br/><b>keyin to'laysiz</b></span>
     </div>
     <div class="trust-pill" data-testid="trust-delivery">
       <svg viewBox="0 0 24 24"><path d="M3 7h11v10H3z"/><path d="M14 10h5l2 3v4h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
@@ -993,90 +1034,29 @@ section { padding: 32px 18px; }
   </div>
 </section>
 
-<!-- ============ Social proof ============ -->
+<!-- ============ Trust / Honest reassurance (replaces fake testimonials) ============ -->
 <section class="section social">
-  <div class="rating-banner">
-    <span class="stars">
-      <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-      <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-      <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-      <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-      <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-    </span>
-    <span class="rating-text">4.9 / 5 <span>· 1240+ buyurtma</span></span>
-  </div>
-
-  <div class="testi-strip" data-testid="testimonials-strip">
-    <div class="testi-card">
-      <span class="stars">
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-      </span>
-      <p class="testi-text">"Bolam tagida konditsioner edi, doim shamollardi. Ekrandan keyin tunda osoyishta uxlayapti. Rahmat!"</p>
-      <div class="testi-meta">
-        <div class="testi-avatar" style="background:#0EA5E9">M</div>
-        <div>
-          <div class="testi-name">Madina O.</div>
-          <div class="testi-city">Toshkent shahri</div>
-        </div>
+  <div class="trust-cards">
+    <div class="trust-card-honest">
+      <div class="trust-card-icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><circle cx="8" cy="15" r="1.5"/></svg>
       </div>
+      <h3 class="trust-card-title">Avval ko'rasiz, keyin to'laysiz</h3>
+      <p class="trust-card-text">Kuryer mahsulotni olib keladi. Siz qutidan chiqarib, ko'zdan kechirasiz. Faqat keyin 175 000 so'mni naqd yoki karta orqali to'laysiz.</p>
     </div>
-
-    <div class="testi-card">
-      <span class="stars">
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-      </span>
-      <p class="testi-text">"Ofisda hammasi 'menga sovuq', 'menga issiq' edi. Ikkita ekran o'rnatdik — janjallar to'xtadi."</p>
-      <div class="testi-meta">
-        <div class="testi-avatar" style="background:#F59E0B">R</div>
-        <div>
-          <div class="testi-name">Rustam K.</div>
-          <div class="testi-city">Samarqand</div>
-        </div>
+    <div class="trust-card-honest">
+      <div class="trust-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 7h11v10H3z"/><path d="M14 10h5l2 3v4h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
       </div>
+      <h3 class="trust-card-title">O'zbekiston bo'ylab yetkazib berish</h3>
+      <p class="trust-card-text">Toshkent bo'ylab odatda keyingi kuni. Boshqa hududlarga 1–3 kun ichida. Aniq muddatni menejer tasdiqlash vaqtida aytadi.</p>
     </div>
-
-    <div class="testi-card">
-      <span class="stars">
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-      </span>
-      <p class="testi-text">"5 daqiqada o'rnatdim, usta chaqirmadim. Konditsioner ishlayveradi, lekin yuzga shamol urmaydi. Zo'r ish."</p>
-      <div class="testi-meta">
-        <div class="testi-avatar" style="background:#10B981">N</div>
-        <div>
-          <div class="testi-name">Nodir A.</div>
-          <div class="testi-city">Farg'ona</div>
-        </div>
+    <div class="trust-card-honest">
+      <div class="trust-card-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
       </div>
-    </div>
-
-    <div class="testi-card">
-      <span class="stars">
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-        <svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.7L18 22l-6-4-6 4 1.5-7.8L2 9.5 9 9z"/></svg>
-      </span>
-      <p class="testi-text">"Salonimda mijozlar uzoq o'tirsa ham sovqotmaydi. Ish jarayoni qulayroq bo'ldi."</p>
-      <div class="testi-meta">
-        <div class="testi-avatar" style="background:#EC4899">G</div>
-        <div>
-          <div class="testi-name">Gulnoza S.</div>
-          <div class="testi-city">Buxoro</div>
-        </div>
-      </div>
+      <h3 class="trust-card-title">Mos kelmasa — qaytarish shartlari mavjud</h3>
+      <p class="trust-card-text">Mahsulot konditsioneringizga to'g'ri kelmasa yoki ishlamasa, qaytarish shartlarini menejer tasdiqlash vaqtida aytib beradi.</p>
     </div>
   </div>
 </section>
@@ -1167,7 +1147,7 @@ section { padding: 32px 18px; }
       <div class="step-num">1</div>
       <div>
         <h3 class="step-title">Buyurtmani rasmiylashtirasiz</h3>
-        <p class="step-text">Ism, telefon va shaharni yozasiz. Hozir aksiya bo'yicha narx — 175 000 so'm.</p>
+        <p class="step-text">Ism va telefon raqamingizni yozasiz. Narxi — 175 000 so'm.</p>
       </div>
     </div>
     <div class="step-row">
@@ -1284,7 +1264,7 @@ section { padding: 32px 18px; }
     <div class="trust-item">
       <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
       <div>
-        <h3 class="trust-title">14 kun ichida qaytarish shartlari</h3>
+        <h3 class="trust-title">Qaytarish shartlari mavjud</h3>
         <p class="trust-text">Mos kelmasa — qaytarish mumkin. Aniq shartlarni menejer tasdiqlash vaqtida aytib beradi.</p>
       </div>
     </div>
@@ -1431,7 +1411,7 @@ section { padding: 32px 18px; }
     </div>
     <div class="faq-item">
       <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-payment"><span>To'lov qanday amalga oshiriladi?</span><span class="chev">+</span></button>
-      <div class="faq-a">Mahsulot narxi 175 000 so'm (eski narx 250 000 so'm, hozir aksiya). To'lov — mahsulotni qabul qilganda, naqd yoki karta orqali. To'lashdan oldin mahsulotni ko'rib chiqish mumkin. Oldindan to'lov yo'q.</div>
+      <div class="faq-a">Mahsulot narxi 175 000 so'm. To'lov — mahsulotni qabul qilganda, naqd yoki karta orqali. To'lashdan oldin mahsulotni ko'rib chiqish mumkin. Oldindan to'lov yo'q.</div>
     </div>
     <div class="faq-item">
       <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-delivery"><span>Yetkazib berish qancha vaqt oladi?</span><span class="chev">+</span></button>
@@ -1439,7 +1419,7 @@ section { padding: 32px 18px; }
     </div>
     <div class="faq-item">
       <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-return"><span>Mos kelmasa qaytarish mumkinmi?</span><span class="chev">+</span></button>
-      <div class="faq-a">14 kun ichida qaytarish shartlari mavjud. Aniq shartlarni menejer tasdiqlash vaqtida aytib beradi.</div>
+      <div class="faq-a">Mos kelmasa qaytarish mumkin. Aniq muddat va shartlarni menejer tasdiqlash vaqtida aytib beradi.</div>
     </div>
   </div>
 </section>
@@ -1447,10 +1427,9 @@ section { padding: 32px 18px; }
 <!-- ============ Final pricing recap ============ -->
 <section class="section recap">
   <div class="recap-card">
-    <div class="recap-line">Bugungi aksiya narxi</div>
-    <div class="recap-price-old">250 000 so'm</div>
+    <div class="recap-line">Narxi</div>
     <div class="recap-price-new">175 000 so'm</div>
-    <div class="recap-sub">Qabulda to'lov · Oldindan to'lov yo'q · 14 kun qaytarish</div>
+    <div class="recap-sub">Qabulda to'lov · Oldindan to'lov yo'q · O'zbekiston bo'ylab</div>
   </div>
 </section>
 
@@ -1493,9 +1472,9 @@ section { padding: 32px 18px; }
     </div>
 
     <div class="field" id="grp-city">
-      <label for="fcity">Shahar / viloyat <span class="req">*</span></label>
+      <label for="fcity">Shahar / viloyat <span class="opt">(ixtiyoriy)</span></label>
       <select id="fcity" name="city" data-testid="select-city">
-        <option value="">Tanlang...</option>
+        <option value="">Menejer aniqlashtiradi</option>
         <option value="Toshkent shahri">Toshkent shahri</option>
         <option value="Toshkent viloyati">Toshkent viloyati</option>
         <option value="Samarqand">Samarqand</option>
@@ -1511,7 +1490,7 @@ section { padding: 32px 18px; }
         <option value="Xorazm">Xorazm</option>
         <option value="Qoraqalpog'iston">Qoraqalpog'iston</option>
       </select>
-      <div class="field-error">Iltimos, shahar yoki viloyatni tanlang</div>
+      <div class="hint">Tanlamasangiz ham bo'ladi — menejer qo'ng'iroqda aniqlashtiradi.</div>
     </div>
 
     <div class="field">
@@ -1560,7 +1539,7 @@ section { padding: 32px 18px; }
 <!-- ============ Footer ============ -->
 <footer class="site-footer">
   <div class="ft-prod">Konditsioner himoya ekrani · 175 000 so'm</div>
-  <div class="ft-row">Qabulda to'lov · O'zbekiston bo'ylab yetkaziladi · 14 kun ichida qaytarish</div>
+  <div class="ft-row">Qabulda to'lov · O'zbekiston bo'ylab yetkaziladi</div>
   <div class="ft-row" style="margin-top:8px;font-size:11px;">© 2026. Operatorlar 09:00–21:00.</div>
 </footer>
 
@@ -1570,7 +1549,7 @@ section { padding: 32px 18px; }
 <div class="sticky-cta" id="stickyCta" data-testid="sticky-cta">
   <div class="sticky-cta-inner">
     <div class="sticky-price">
-      <span>Bugun aksiya</span>
+      <span>Narxi</span>
       <b>175 000 so'm</b>
     </div>
     <button type="button" onclick="scrollToOrder()" data-testid="sticky-cta-button">
@@ -1618,9 +1597,22 @@ function readCookie(name) {
 }
 function ensureFbc() {
   var existing = readCookie('_fbc');
-  if (existing) return existing;
+  // Both Meta SDK (fb.2.X.Y) and legacy hand-rolled (fb.1.X.Y) formats are valid.
+  // We reject placeholders (literal "fbclid", too-short tokens, non-alnum chars).
+  var FBC_OK = /^fb\.[12]\.\d{10,}\.[A-Za-z0-9_\-]{15,}$/;
+  if (existing) {
+    if (!FBC_OK.test(existing) || /\.fbclid$/i.test(existing)) {
+      // Wipe the malformed cookie so neither browser Pixel nor server CAPI uses it.
+      try { document.cookie = '_fbc=; max-age=0; path=/'; } catch(e){}
+    } else {
+      return existing;
+    }
+  }
   var fbclid = TRACKING.fbclid || new URLSearchParams(location.search).get('fbclid');
   if (!fbclid) return '';
+  if (!/^[A-Za-z0-9_\-]{15,}$/.test(fbclid) || fbclid.toLowerCase() === 'fbclid') {
+    return '';
+  }
   var fbc = 'fb.1.' + Date.now() + '.' + fbclid;
   try { document.cookie = '_fbc=' + encodeURIComponent(fbc) + '; max-age=' + (90*24*3600) + '; path=/; SameSite=Lax'; } catch(e){}
   return fbc;
@@ -1653,9 +1645,18 @@ var phoneInput = document.getElementById('fphone');
 phoneInput.addEventListener('focus', function(){ if (!this.value) this.value = '+998 '; });
 phoneInput.addEventListener('input', function() {
   var val = this.value.replace(/\D/g, '');
-  if (val.startsWith('998')) val = val;
+  // Normalise leading prefix without doubling it. Common keyboard / paste shapes:
+  //  '998XXXXXXXXX' -> 998XXXXXXXXX
+  //  '8XXXXXXXXX'   -> 998XXXXXXXXX
+  //  '7XXXXXXXXX'   -> 998XXXXXXXXX
+  //  '0XXXXXXXXX'   -> 998XXXXXXXXX
+  //  '+998 998…'    -> when user re-types 998 into the already-prefixed field
+  //                    we get 998998XXXXXXXXX → strip the duplicate 998 once.
+  if (val.startsWith('998998')) val = val.slice(3);
+  else if (val.startsWith('998')) { /* ok */ }
   else if (val.startsWith('8') || val.startsWith('7')) val = '998' + val.slice(1);
-  else val = '998' + val;
+  else if (val.startsWith('0')) val = '998' + val.slice(1);
+  else if (val.length > 0) val = '998' + val;
   val = val.slice(0, 12);
   var formatted = '+998';
   if (val.length > 3) formatted += ' ' + val.slice(3, 5);
@@ -1805,40 +1806,18 @@ function quizToOrder() {
 }
 quizShowStep('1');
 
-// ===== Countdown timer (resets each session, 24h max) =====
-(function initTimer(){
-  var KEY = 'cd_timer_end_v1';
-  var endTs = 0;
-  try { endTs = parseInt(sessionStorage.getItem(KEY) || '0', 10); } catch(e){}
-  var now = Date.now();
-  if (!endTs || endTs - now < 60*60*1000 || endTs - now > 24*60*60*1000) {
-    // start a fresh 23h59m timer
-    endTs = now + (23*60 + 59)*60*1000 + 42*1000;
-    try { sessionStorage.setItem(KEY, String(endTs)); } catch(e){}
-  }
-  var el = document.getElementById('timer');
-  function tick() {
-    var diff = Math.max(0, endTs - Date.now());
-    var h = Math.floor(diff / 3600000);
-    var m = Math.floor((diff % 3600000) / 60000);
-    var s = Math.floor((diff % 60000) / 1000);
-    if (el) el.textContent = (h<10?'0':'')+h + ':' + (m<10?'0':'')+m + ':' + (s<10?'0':'')+s;
-    if (diff <= 0) {
-      // restart so the user never sees 00:00:00 (industry pattern for evergreen scarcity)
-      endTs = Date.now() + (23*60 + 59)*60*1000 + 42*1000;
-      try { sessionStorage.setItem(KEY, String(endTs)); } catch(e){}
-    }
-  }
-  tick();
-  setInterval(tick, 1000);
-})();
+// ===== Countdown timer removed (was evergreen / fake urgency) =====
+// Honest CRO: rely on clear price + COD + free returns instead of fake scarcity.
+// If owner ever runs a real time-bound promo, use a server-driven end date.
 
 // ===== Form-fill timing (anti-bot signal) =====
-// Server-side anti-bot (functions/api/lead.js) silently swallows fill_ms < 2500.
-// We add a 3000ms minimum client guard so genuinely-fast humans (autofill, fast typers,
-// CTA-jump-to-form users) never fall below the threshold and lose their lead to BUYO.
+// Server-side anti-bot (functions/api/lead.js) silently swallows fill_ms < 500ms.
+// We add a 1200ms minimum client guard so genuinely-fast humans (autofill, fast
+// typers, CTA-jump-to-form users) never fall below the threshold and lose their
+// lead to BUYO. Previous 3000ms forced a visible "Yuborilmoqda..." pause that
+// confused users — 1200ms is invisible while still beating any real bot.
 var formStartedAt = 0;
-var FILL_MS_FLOOR = 3000;
+var FILL_MS_FLOOR = 1200;
 document.addEventListener('focusin', function(e){
   if (formStartedAt === 0 && e.target && e.target.closest && e.target.closest('#orderForm')) {
     formStartedAt = Date.now();
@@ -1904,7 +1883,7 @@ async function submitForm(e) {
 
   if (name.length < 2) { grpName.classList.add('has-error'); valid = false; }
   if (!/^\+998\d{9}$/.test(phoneRaw)) { grpPhone.classList.add('has-error'); valid = false; }
-  if (!city) { grpCity.classList.add('has-error'); valid = false; }
+  // city is optional now — never blocks submit
   if (!valid) return;
 
   // duplicate guard within 60s
@@ -1921,6 +1900,14 @@ async function submitForm(e) {
   var eventId = pending || genEventId();
   try { sessionStorage.setItem('pending_meta_event_id', eventId); } catch(e){}
 
+  // Sanitise fbp/fbc one more time before sending. Malformed values
+  // (e.g. fb.1.<ts>.fbclid literal placeholder) drop Event Match Quality and
+  // can suppress ad attribution for the whole session.
+  var rawFbp = readCookie('_fbp');
+  var rawFbc = readCookie('_fbc');
+  var safeFbp = /^fb\.\d\.\d{10,}\.\d{10,}$/.test(rawFbp) ? rawFbp : '';
+  var safeFbc = (/^fb\.[12]\.\d{10,}\.[A-Za-z0-9_\-]{15,}$/.test(rawFbc) && !/\.fbclid$/i.test(rawFbc)) ? rawFbc : '';
+
   var payload = {
     name: name,
     phone: phoneRaw,
@@ -1935,8 +1922,8 @@ async function submitForm(e) {
     page_url: location.href,
     referrer: document.referrer || '',
     user_agent: navigator.userAgent,
-    fbp: readCookie('_fbp'),
-    fbc: readCookie('_fbc'),
+    fbp: safeFbp,
+    fbc: safeFbc,
     tracking: TRACKING
   };
 
@@ -1999,29 +1986,13 @@ async function submitForm(e) {
   try { alreadyFired = !!sessionStorage.getItem('pixel_lead_sent_' + finalEventId); } catch(e){}
   if (window.fbq && !alreadyFired && !silentlySwallowed) {
     try {
-      // ===== Pixel Advanced Matching =====
-      // Re-init the pixel with hashed-by-meta user data BEFORE firing the Lead event.
-      // Meta SDK auto-hashes these on the client. This data is then sent with EVERY
-      // subsequent event in this session (Lead, ViewContent, InitiateCheckout, etc.)
-      // and lifts CAPI match-quality from ~6.0 -> ~8.5-9.0.
-      var nameParts = name.trim().split(/\s+/);
-      var firstName = (nameParts[0] || '').toLowerCase();
-      var lastName  = (nameParts.slice(1).join(' ') || '').toLowerCase();
-      var cityNorm  = (city || '').toLowerCase()
-        .replace(/\s+(shahri|viloyati|shaxri|vil)\b/g, '')
-        .replace(/\s+/g, '');
-      var advancedMatch = {
-        ph: phoneRaw.replace(/\D/g, ''),         // unhashed; Meta hashes
-        fn: firstName,
-        ln: lastName,
-        ct: cityNorm,
-        st: cityNorm,                            // UZ: city ~= region for matching purposes
-        country: 'uz',
-        external_id: phoneRaw.replace(/\D/g, ''),// same person = same id across devices
-      };
-      if (window.__META_PIXEL_ID__) {
-        window.fbq('init', window.__META_PIXEL_ID__, advancedMatch);
-      }
+      // Lead event fires with ONLY eventID (for dedup with server CAPI).
+      // We intentionally do NOT re-init the pixel with advanced match here —
+      // that previously caused a duplicate PageView and polluted attribution.
+      // All rich PII (phone, name, city, country) is hashed and sent by the
+      // server CAPI call in /api/lead.js, which Meta deduplicates against
+      // this browser event via the matching eventID. Match quality is driven
+      // entirely by the server channel (more reliable on iOS / IG in-app).
       window.fbq('track', 'Lead', {
         content_name: 'conditioner_deflector',
         content_category: 'conditioner_deflector',
@@ -2047,6 +2018,32 @@ function showSuccess() {
   s.classList.add('show');
   document.getElementById('stickyCta').style.display = 'none';
   s.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Sticky CTA visibility: hide on hero & form, show in mid-page scroll
+var sticky = document.getElementById('stickyCta');
+var heroEl = document.getElementById('hero');
+var formSuccess = document.getElementById('formSuccess');
+var orderEl = document.getElementById('order');
+var heroVisible = true;
+var orderVisible = false;
+function syncSticky() {
+  if (formSuccess.classList.contains('show')) { sticky.style.display = 'none'; return; }
+  sticky.style.display = (heroVisible || orderVisible) ? 'none' : 'flex';
+}
+new IntersectionObserver(function(entries){
+  heroVisible = entries[0].isIntersecting;
+  syncSticky();
+}, { threshold: 0.15 }).observe(heroEl);
+new IntersectionObserver(function(entries){
+  orderVisible = entries[0].isIntersecting;
+  syncSticky();
+}, { threshold: 0.05 }).observe(orderEl);
+</script>
+
+</body>
+</html>
+ 'center' });
 }
 
 // Sticky CTA visibility: hide on hero & form, show in mid-page scroll

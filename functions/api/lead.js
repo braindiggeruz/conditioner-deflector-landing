@@ -214,8 +214,35 @@ async function sendToBuyo(env, payload) {
     else if (lower.includes('duplic')) reason = 'buyo_duplicate';
     else reason = 'buyo_failed';
   }
-  const leadId = parsed?.data?.id || parsed?.data?.lead?.id || parsed?.lead_id || null;
-  return { ok: success, status: res.status, reason, lead_id: leadId };
+  const leadId =
+    parsed?.data?.id ||
+    parsed?.data?.lead_id ||
+    parsed?.data?.lead?.id ||
+    parsed?.data?.uuid ||
+    parsed?.lead?.id ||
+    parsed?.lead_id ||
+    parsed?.id ||
+    parsed?.uuid ||
+    null;
+  // Stash response shape (keys only) so we can iterate the parser without
+  // wrangler tail. Values are PII and never logged.
+  let shape_top = null, shape_data = null, shape_marker = 'unknown';
+  try {
+    if (parsed === null) shape_marker = 'parsed_null';
+    else if (typeof parsed !== 'object') shape_marker = 'parsed_not_object';
+    else {
+      shape_top = Object.keys(parsed).slice(0, 12);
+      shape_marker = 'set';
+      if (parsed.data && typeof parsed.data === 'object') {
+        shape_data = Object.keys(parsed.data).slice(0, 12);
+      } else if (parsed.data === undefined) {
+        shape_marker = 'set_no_data_field';
+      } else {
+        shape_marker = 'set_data_not_object';
+      }
+    }
+  } catch { shape_marker = 'capture_err'; }
+  return { ok: success, status: res.status, reason, lead_id: leadId, shape_top, shape_data, shape_marker, text_len: text ? text.length : 0 };
 }
 
 async function sendMetaCapi(env, ev) {
@@ -319,11 +346,21 @@ export const onRequestPost = async ({ request, env }) => {
   }
 
   // ---- Form-fill speed: < 0.5s is clearly automated (humans need >0.5s even to tap "submit") ----
-  // Client-side guarantees >= 3s. This server check is a final safety net.
+  // Client-side guarantees >= 1.2s. This server check is a final safety net.
   const fillMs = Number(body.fill_ms || 0);
   if (fillMs > 0 && fillMs < 500) {
     console.log(JSON.stringify({ stage: 'fill_too_fast', fill_ms: fillMs }));
     await recordAttempt(env, { outcome: 'fill_too_fast', fill_ms: fillMs, phone_masked: maskPhone(body.phone) });
+    return json({ ok: true, event_id: 'bot_silenced' });
+  }
+
+  // ---- Anti-headless / scraper UA detection ----
+  // Real Meta/IG traffic uses mobile browsers; headless or curl/bot UAs are
+  // never legitimate buyers. Silently swallow to avoid revealing the rule to bots.
+  const uaHeader = request.headers.get('User-Agent') || '';
+  if (/HeadlessChrome|PhantomJS|Selenium|puppeteer|playwright|curl\/|wget\/|python-requests|Go-http-client|Bot\/|Crawler/i.test(uaHeader)) {
+    console.log(JSON.stringify({ stage: 'headless_blocked', ua: uaHeader.slice(0, 80) }));
+    await recordAttempt(env, { outcome: 'headless_blocked', phone_masked: maskPhone(body.phone) });
     return json({ ok: true, event_id: 'bot_silenced' });
   }
 
@@ -338,7 +375,8 @@ export const onRequestPost = async ({ request, env }) => {
 
   if (name.length < 2) { await recordAttempt(env, { outcome: 'invalid_name', phone_masked: maskPhone(body.phone) }); return json({ ok: false, error: 'invalid_name' }, 400); }
   if (!phone) { await recordAttempt(env, { outcome: 'invalid_phone_format', phone_masked: maskPhone(body.phone) }); return json({ ok: false, error: 'invalid_phone' }, 400); }
-  if (!city) { await recordAttempt(env, { outcome: 'invalid_city', phone_masked: maskPhone(phone) }); return json({ ok: false, error: 'invalid_city' }, 400); }
+  // city is OPTIONAL — BUYO requires only name+phone+IP. Manager confirms city by call.
+  // We still capture it when provided (improves CAPI Advanced Matching) but never block on it.
 
   // ---- UZ phone pattern blacklist ----
   const patternIssue = isPhonePatternSuspect(phone);
@@ -426,8 +464,18 @@ export const onRequestPost = async ({ request, env }) => {
 
   // ---- CAPI Advanced Matching: hash all available PII ----
   const phoneDigits = phone.replace(/\D/g, ''); // 998XXXXXXXXX
-  const fbp = sanitize(body.fbp, 200);
-  const fbc = sanitize(body.fbc, 200);
+  const rawFbp = sanitize(body.fbp, 200);
+  const rawFbc = sanitize(body.fbc, 200);
+  // Defense-in-depth: even though the client validates fbp/fbc, a tampered or
+  // legacy session could still ship malformed values. Reject them server-side
+  // so Meta CAPI doesn't get poisoned advanced-match data (which downgrades EMQ
+  // for the whole campaign).
+  const FBP_RE = /^fb\.\d\.\d{10,}\.\d{10,}$/;
+  const FBC_RE = /^fb\.[12]\.\d{10,}\.[A-Za-z0-9_\-]{15,}$/;
+  const fbp = (rawFbp && FBP_RE.test(rawFbp)) ? rawFbp : '';
+  const fbc = (rawFbc && FBC_RE.test(rawFbc) && !/\.fbclid$/i.test(rawFbc)) ? rawFbc : '';
+  if (rawFbp && !fbp) console.log(JSON.stringify({ stage: 'fbp_rejected_server', event_id }));
+  if (rawFbc && !fbc) console.log(JSON.stringify({ stage: 'fbc_rejected_server', event_id }));
   const { fn: firstName, ln: lastName } = splitName(name);
   const cityNorm = normalizeCityForMatch(city);
   const stateNorm = deriveUzState(city);
@@ -506,6 +554,10 @@ export const onRequestPost = async ({ request, env }) => {
     capi: metaStatus,
     phone_masked: maskPhone(phone),
     city,
+    buyo_shape_top: buyo.shape_top || null,
+    buyo_shape_data: buyo.shape_data || null,
+    buyo_shape_marker: buyo.shape_marker || null,
+    buyo_text_len: buyo.text_len || 0,
   });
 
   return json({
@@ -528,5 +580,9 @@ async function recordHappyPath(env, ctx) {
     capi: ctx.capi,
     phone_masked: ctx.phone_masked,
     city: ctx.city,
+    buyo_shape_top: ctx.buyo_shape_top,
+    buyo_shape_data: ctx.buyo_shape_data,
+    buyo_shape_marker: ctx.buyo_shape_marker,
+    buyo_text_len: ctx.buyo_text_len,
   });
 }
