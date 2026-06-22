@@ -1264,7 +1264,7 @@ section { padding: 32px 18px; }
     <div class="trust-item">
       <div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div>
       <div>
-        <h3 class="trust-title">14 kun ichida qaytarish shartlari</h3>
+        <h3 class="trust-title">Qaytarish shartlari mavjud</h3>
         <p class="trust-text">Mos kelmasa — qaytarish mumkin. Aniq shartlarni menejer tasdiqlash vaqtida aytib beradi.</p>
       </div>
     </div>
@@ -1419,7 +1419,7 @@ section { padding: 32px 18px; }
     </div>
     <div class="faq-item">
       <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-return"><span>Mos kelmasa qaytarish mumkinmi?</span><span class="chev">+</span></button>
-      <div class="faq-a">14 kun ichida qaytarish shartlari mavjud. Aniq shartlarni menejer tasdiqlash vaqtida aytib beradi.</div>
+      <div class="faq-a">Mos kelmasa qaytarish mumkin. Aniq muddat va shartlarni menejer tasdiqlash vaqtida aytib beradi.</div>
     </div>
   </div>
 </section>
@@ -1539,7 +1539,7 @@ section { padding: 32px 18px; }
 <!-- ============ Footer ============ -->
 <footer class="site-footer">
   <div class="ft-prod">Konditsioner himoya ekrani · 175 000 so'm</div>
-  <div class="ft-row">Qabulda to'lov · O'zbekiston bo'ylab yetkaziladi · 14 kun ichida qaytarish</div>
+  <div class="ft-row">Qabulda to'lov · O'zbekiston bo'ylab yetkaziladi</div>
   <div class="ft-row" style="margin-top:8px;font-size:11px;">© 2026. Operatorlar 09:00–21:00.</div>
 </footer>
 
@@ -1597,11 +1597,12 @@ function readCookie(name) {
 }
 function ensureFbc() {
   var existing = readCookie('_fbc');
+  // Both Meta SDK (fb.2.X.Y) and legacy hand-rolled (fb.1.X.Y) formats are valid.
+  // We reject placeholders (literal "fbclid", too-short tokens, non-alnum chars).
+  var FBC_OK = /^fb\.[12]\.\d{10,}\.[A-Za-z0-9_\-]{15,}$/;
   if (existing) {
-    // Validate existing cookie shape. We've seen malformed values like
-    // "fb.1.<ts>.fbclid" (literal "fbclid" string) get written during link
-    // testing and then poison Event Match Quality for 90 days. Clear those.
-    if (!/^fb\.1\.\d{10,}\.[A-Za-z0-9_\-]{15,}$/.test(existing)) {
+    if (!FBC_OK.test(existing) || /\.fbclid$/i.test(existing)) {
+      // Wipe the malformed cookie so neither browser Pixel nor server CAPI uses it.
       try { document.cookie = '_fbc=; max-age=0; path=/'; } catch(e){}
     } else {
       return existing;
@@ -1609,8 +1610,6 @@ function ensureFbc() {
   }
   var fbclid = TRACKING.fbclid || new URLSearchParams(location.search).get('fbclid');
   if (!fbclid) return '';
-  // Skip obviously-invalid fbclid values (placeholders, too-short tokens, etc).
-  // Real Meta fbclids are 20+ chars and contain only [A-Za-z0-9_-].
   if (!/^[A-Za-z0-9_\-]{15,}$/.test(fbclid) || fbclid.toLowerCase() === 'fbclid') {
     return '';
   }
@@ -1646,9 +1645,18 @@ var phoneInput = document.getElementById('fphone');
 phoneInput.addEventListener('focus', function(){ if (!this.value) this.value = '+998 '; });
 phoneInput.addEventListener('input', function() {
   var val = this.value.replace(/\D/g, '');
-  if (val.startsWith('998')) val = val;
+  // Normalise leading prefix without doubling it. Common keyboard / paste shapes:
+  //  '998XXXXXXXXX' -> 998XXXXXXXXX
+  //  '8XXXXXXXXX'   -> 998XXXXXXXXX
+  //  '7XXXXXXXXX'   -> 998XXXXXXXXX
+  //  '0XXXXXXXXX'   -> 998XXXXXXXXX
+  //  '+998 998…'    -> when user re-types 998 into the already-prefixed field
+  //                    we get 998998XXXXXXXXX → strip the duplicate 998 once.
+  if (val.startsWith('998998')) val = val.slice(3);
+  else if (val.startsWith('998')) { /* ok */ }
   else if (val.startsWith('8') || val.startsWith('7')) val = '998' + val.slice(1);
-  else val = '998' + val;
+  else if (val.startsWith('0')) val = '998' + val.slice(1);
+  else if (val.length > 0) val = '998' + val;
   val = val.slice(0, 12);
   var formatted = '+998';
   if (val.length > 3) formatted += ' ' + val.slice(3, 5);
@@ -1898,7 +1906,7 @@ async function submitForm(e) {
   var rawFbp = readCookie('_fbp');
   var rawFbc = readCookie('_fbc');
   var safeFbp = /^fb\.\d\.\d{10,}\.\d{10,}$/.test(rawFbp) ? rawFbp : '';
-  var safeFbc = /^fb\.1\.\d{10,}\.[A-Za-z0-9_\-]{15,}$/.test(rawFbc) ? rawFbc : '';
+  var safeFbc = (/^fb\.[12]\.\d{10,}\.[A-Za-z0-9_\-]{15,}$/.test(rawFbc) && !/\.fbclid$/i.test(rawFbc)) ? rawFbc : '';
 
   var payload = {
     name: name,
