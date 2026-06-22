@@ -1,0 +1,17 @@
+# Cloudflare Pages — Edge cache + browser cache rules
+# Docs: https://developers.cloudflare.com/pages/configuration/headers/
+
+# Images: immutable, cache 1 year (we hash filenames if we ever need to bust).
+/img/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML root: short cache, must revalidate (so deploys propagate fast).
+/
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# API endpoints: never cache (Functions handle their own headers, but be explicit).
+/api/*
+  Cache-Control: no-store
