@@ -319,11 +319,21 @@ export const onRequestPost = async ({ request, env }) => {
   }
 
   // ---- Form-fill speed: < 0.5s is clearly automated (humans need >0.5s even to tap "submit") ----
-  // Client-side guarantees >= 3s. This server check is a final safety net.
+  // Client-side guarantees >= 1.2s. This server check is a final safety net.
   const fillMs = Number(body.fill_ms || 0);
   if (fillMs > 0 && fillMs < 500) {
     console.log(JSON.stringify({ stage: 'fill_too_fast', fill_ms: fillMs }));
     await recordAttempt(env, { outcome: 'fill_too_fast', fill_ms: fillMs, phone_masked: maskPhone(body.phone) });
+    return json({ ok: true, event_id: 'bot_silenced' });
+  }
+
+  // ---- Anti-headless / scraper UA detection ----
+  // Real Meta/IG traffic uses mobile browsers; headless or curl/bot UAs are
+  // never legitimate buyers. Silently swallow to avoid revealing the rule to bots.
+  const uaHeader = request.headers.get('User-Agent') || '';
+  if (/HeadlessChrome|PhantomJS|Selenium|puppeteer|playwright|curl\/|wget\/|python-requests|Go-http-client|Bot\/|Crawler/i.test(uaHeader)) {
+    console.log(JSON.stringify({ stage: 'headless_blocked', ua: uaHeader.slice(0, 80) }));
+    await recordAttempt(env, { outcome: 'headless_blocked', phone_masked: maskPhone(body.phone) });
     return json({ ok: true, event_id: 'bot_silenced' });
   }
 
@@ -338,7 +348,8 @@ export const onRequestPost = async ({ request, env }) => {
 
   if (name.length < 2) { await recordAttempt(env, { outcome: 'invalid_name', phone_masked: maskPhone(body.phone) }); return json({ ok: false, error: 'invalid_name' }, 400); }
   if (!phone) { await recordAttempt(env, { outcome: 'invalid_phone_format', phone_masked: maskPhone(body.phone) }); return json({ ok: false, error: 'invalid_phone' }, 400); }
-  if (!city) { await recordAttempt(env, { outcome: 'invalid_city', phone_masked: maskPhone(phone) }); return json({ ok: false, error: 'invalid_city' }, 400); }
+  // city is OPTIONAL — BUYO requires only name+phone+IP. Manager confirms city by call.
+  // We still capture it when provided (improves CAPI Advanced Matching) but never block on it.
 
   // ---- UZ phone pattern blacklist ----
   const patternIssue = isPhonePatternSuspect(phone);
