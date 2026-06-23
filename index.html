@@ -1140,7 +1140,7 @@ a { color: inherit; text-decoration: none; }
   <p class="section-lede">2 ta savol — 15 soniya. Ixtiyoriy — buyurtmadan keyin menejer ham tekshiradi.</p>
 
   <div class="quiz-collapse" id="quizCollapse">
-    <button class="quiz-toggle" type="button" onclick="toggleQuiz()" data-testid="quiz-toggle">
+    <button class="quiz-toggle" type="button" aria-expanded="false" aria-controls="quizCard" onclick="toggleQuiz(this)" data-testid="quiz-toggle">
       <div>
         <h3 class="quiz-toggle-title">Konditsioneringizga mos keladimi?</h3>
         <p class="quiz-toggle-sub">15 soniyalik tekshiruv. Ixtiyoriy.</p>
@@ -1250,27 +1250,27 @@ a { color: inherit; text-decoration: none; }
   <h2 class="section-title">Savol va <span class="hl">javoblar</span></h2>
   <div class="faq-list">
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-fit"><span>Bu ekran mening konditsionerimga mos keladimi?</span><span class="chev">+</span></button>
+      <button class="faq-q" type="button" aria-expanded="false" onclick="toggleFaq(this)" data-testid="faq-q-fit"><span>Bu ekran mening konditsionerimga mos keladimi?</span><span class="chev">+</span></button>
       <div class="faq-a">Ko'pchilik devor split-konditsionerlari uchun mos. Aniq moslik buyurtmani tasdiqlash vaqtida menejer bilan tekshiriladi.</div>
     </div>
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-cool"><span>Sovitishga xalaqit bermaydimi?</span><span class="chev">+</span></button>
+      <button class="faq-q" type="button" aria-expanded="false" onclick="toggleFaq(this)" data-testid="faq-q-cool"><span>Sovitishga xalaqit bermaydimi?</span><span class="chev">+</span></button>
       <div class="faq-a">Yo'q. Ekran havoni to'sish uchun emas, yo'nalishini o'zgartirish uchun ishlatiladi. Xona xuddi shu tezlikda soviydi.</div>
     </div>
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-install"><span>O'rnatish qiyin emasmi?</span><span class="chev">+</span></button>
+      <button class="faq-q" type="button" aria-expanded="false" onclick="toggleFaq(this)" data-testid="faq-q-install"><span>O'rnatish qiyin emasmi?</span><span class="chev">+</span></button>
       <div class="faq-a">Ko'p hollarda bir necha daqiqada o'rnatiladi. Komplektdagi mahkamlash qismlari yordamida — usta chaqirish shart emas.</div>
     </div>
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-payment"><span>To'lov qanday amalga oshiriladi?</span><span class="chev">+</span></button>
+      <button class="faq-q" type="button" aria-expanded="false" onclick="toggleFaq(this)" data-testid="faq-q-payment"><span>To'lov qanday amalga oshiriladi?</span><span class="chev">+</span></button>
       <div class="faq-a">Mahsulot narxi 175 000 so'm. To'lov — mahsulotni qabul qilganda, naqd yoki karta orqali. Oldindan to'lov yo'q.</div>
     </div>
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-delivery"><span>Yetkazib berish qancha vaqt oladi?</span><span class="chev">+</span></button>
+      <button class="faq-q" type="button" aria-expanded="false" onclick="toggleFaq(this)" data-testid="faq-q-delivery"><span>Yetkazib berish qancha vaqt oladi?</span><span class="chev">+</span></button>
       <div class="faq-a">Toshkent bo'ylab odatda keyingi kuni, hududlarga 1–3 kun. Aniq muddatni menejer tasdiqlash vaqtida aytadi.</div>
     </div>
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFaq(this)" data-testid="faq-q-return"><span>Mos kelmasa qaytarish mumkinmi?</span><span class="chev">+</span></button>
+      <button class="faq-q" type="button" aria-expanded="false" onclick="toggleFaq(this)" data-testid="faq-q-return"><span>Mos kelmasa qaytarish mumkinmi?</span><span class="chev">+</span></button>
       <div class="faq-a">Mos kelmasa qaytarish mumkin. Aniq muddat va shartlarni menejer tasdiqlash vaqtida aytib beradi.</div>
     </div>
   </div>
@@ -1536,15 +1536,24 @@ function markFormStart(section) {
 function toggleFaq(btn) {
   var item = btn.closest('.faq-item');
   var wasOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(function(i){ i.classList.remove('open'); });
-  if (!wasOpen) item.classList.add('open');
+  document.querySelectorAll('.faq-item').forEach(function(i){
+    i.classList.remove('open');
+    var q = i.querySelector('.faq-q');
+    if (q) q.setAttribute('aria-expanded', 'false');
+  });
+  if (!wasOpen) {
+    item.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+  }
 }
 
 // ===== Quiz =====
-function toggleQuiz() {
+function toggleQuiz(btn) {
   var box = document.getElementById('quizCollapse');
   box.classList.toggle('open');
-  if (box.classList.contains('open')) trackFunnel('quiz_opened');
+  var isOpen = box.classList.contains('open');
+  if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  if (isOpen) trackFunnel('quiz_opened');
 }
 var quizState = { ac_type: null, ac_mount: null };
 function quizShowStep(step) {
