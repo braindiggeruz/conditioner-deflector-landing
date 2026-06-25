@@ -945,7 +945,7 @@ a { color: inherit; text-decoration: none; }
         </span>
       </div>
     </div>
-    <button class="cta-primary" type="button" onclick="openSheet('hero-cta')" data-testid="hero-cta">
+    <button class="cta-primary" type="button" onclick="scrollToForm('hero-cta')" data-testid="hero-cta">
       Buyurtma berish <span class="arrow">→</span>
       <span class="sub">
         <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
@@ -1317,7 +1317,7 @@ a { color: inherit; text-decoration: none; }
             <p class="quiz-result-text">Aniq moslik buyurtmani tasdiqlash vaqtida menejer tomonidan qo'shimcha tekshiriladi.</p>
           </div>
         </div>
-        <button class="cta-primary" type="button" onclick="openSheet('quiz-ok')" data-testid="quiz-to-order">
+        <button class="cta-primary" type="button" onclick="scrollToForm('quiz-ok')" data-testid="quiz-to-order">
           Buyurtmaga o'tish — 175 000 so'm <span class="arrow">→</span>
           <span class="sub"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Qabulda to'lov</span>
         </button>
@@ -1331,7 +1331,7 @@ a { color: inherit; text-decoration: none; }
             <p class="quiz-result-text">Ekran asosan devorga o'rnatilgan split-konditsionerlar uchun. Deraza yoki pol turi uchun samarali bo'lmasligi mumkin.</p>
           </div>
         </div>
-        <button class="cta-primary" type="button" onclick="openSheet('quiz-bad-anyway')" data-testid="quiz-to-order-bad" style="background:linear-gradient(180deg,#0EA5E9 0%,#0284C7 100%);">
+        <button class="cta-primary" type="button" onclick="scrollToForm('quiz-bad-anyway')" data-testid="quiz-to-order-bad" style="background:linear-gradient(180deg,#0EA5E9 0%,#0284C7 100%);">
           Baribir maslahatlashish <span class="arrow">→</span>
           <span class="sub">Menejer telefonda aniqlashtiradi</span>
         </button>
@@ -1622,12 +1622,14 @@ attachPhoneMask(document.getElementById('fphone'));
 attachPhoneMask(document.getElementById('sphone'));
 
 // ===== Form start tracking =====
+// IMPORTANT: focus on a field is NOT the start of checkout — it's curiosity.
+// We only record first-party telemetry here. The Meta `InitiateCheckout`
+// event fires later in submitForm() AFTER frontend validation passes.
 var formStarted = false;
 function markFormStart(section) {
   if (formStarted) return;
   formStarted = true;
   trackFunnel('form_started', { section: section || 'inline' });
-  fireInitiateCheckoutOnce();
 }
 ['fname','fphone','fcity','fwidth','sname','sphone'].forEach(function(id){
   var el = document.getElementById(id);
@@ -1699,10 +1701,36 @@ var formStartedAt = 0;
 function startFormTimer() {
   if (formStartedAt === 0) formStartedAt = Date.now();
 }
+
+// Smooth scroll to the inline order form (under hero). Used by CTAs near
+// the top of the page where the form is only one screen away — avoids
+// the bottom-sheet keyboard issues that some in-app browsers exhibit.
+function scrollToForm(source) {
+  trackFunnel('hero_cta_clicked', { section: source });
+  startFormTimer();
+  // NOTE: We intentionally do NOT fire Meta `InitiateCheckout` here.
+  // A CTA tap is curiosity, not real checkout intent. Real intent is
+  // proven only when frontend validation passes inside submitForm().
+  var order = document.getElementById('order');
+  if (order) {
+    try { order.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch(e) { order.scrollIntoView(); }
+  }
+  // Focus the name field once the scroll settles, so the keyboard
+  // doesn't pop up during the animation (which iOS Safari hates).
+  setTimeout(function(){
+    var n = document.getElementById('fname');
+    if (n && document.activeElement !== n) {
+      try { n.focus({ preventScroll: true }); } catch(e) { n.focus(); }
+    }
+  }, 600);
+}
 function openSheet(source) {
   trackFunnel(source === 'sticky-cta' ? 'sticky_cta_clicked' : 'hero_cta_clicked', { section: source });
   startFormTimer();
-  fireInitiateCheckoutOnce();
+  // NOTE: We intentionally do NOT fire Meta `InitiateCheckout` here.
+  // A CTA tap opens the form, but it does not yet mean the user is
+  // checking out. `InitiateCheckout` is fired in submitForm() AFTER
+  // frontend validation passes — that is the first proof of real intent.
   var overlay = document.getElementById('sheetOverlay');
   var sheet = document.getElementById('sheet');
   overlay.classList.add('show');
@@ -1862,6 +1890,16 @@ async function submitForm(e, source) {
     return;
   }
 
+  // ---- VALIDATED SUBMIT — this is the real start of checkout. ----
+  // We fire Meta `InitiateCheckout` here (not on CTA click / field focus),
+  // so the event only counts users who actually filled name + phone
+  // correctly and pressed the submit button. This is the earliest point
+  // where the user proves real intent to order, and the only place where
+  // optimising Meta Ads on InitiateCheckout will not be polluted by
+  // curiosity clicks. Guarded by sessionStorage so retries don't double-fire.
+  fireInitiateCheckoutOnce();
+  trackFunnel('initiate_checkout_fired', { section: source });
+
   // duplicate guard within 60s
   var nowTs = Date.now();
   if (lastSubmitPhone === f.phone && (nowTs - lastSubmitAt) < 60000) {
@@ -1968,6 +2006,7 @@ async function submitForm(e, source) {
         value: 175000
       }, { eventID: finalEventId });
       try { sessionStorage.setItem('pixel_lead_sent_' + finalEventId, '1'); } catch(e){}
+      trackFunnel('meta_browser_lead_sent', { section: source });
     } catch(e) {}
   }
 

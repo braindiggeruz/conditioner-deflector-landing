@@ -108,7 +108,7 @@ async function sendMetaPurchase(env, ctx, buyoLead) {
         event_time: eventTimeSec,
         event_id: purchaseEventId,
         action_source: 'website',
-        event_source_url: ctx.event_source_url || 'https://conditioner-deflector-landing.pages.dev/',
+        event_source_url: ctx.event_source_url || 'https://deflector.savdomix.uz/',
         user_data,
         custom_data: {
           content_name: 'conditioner_deflector',

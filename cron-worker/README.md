@@ -1,6 +1,6 @@
 # buyo-poll-cron — Cloudflare Worker
 
-Hourly Cloudflare Worker that calls `https://conditioner-deflector-landing.pages.dev/api/buyo-poll`
+Hourly Cloudflare Worker that calls `https://deflector.savdomix.uz/api/buyo-poll`
 with the `X-Cron-Secret` header. The poll endpoint fetches newly-approved BUYO leads and
 uploads them to Meta CAPI as **Purchase** events (deduped against the original Lead `event_id`).
 

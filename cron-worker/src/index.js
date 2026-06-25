@@ -1,17 +1,17 @@
 // Cloudflare Worker: buyo-poll-cron
 //
 // Cron trigger: hourly at minute 5 (every :05 of every hour, every day).
-// Calls https://conditioner-deflector-landing.pages.dev/api/buyo-poll with
-// the X-Cron-Secret header. The poll function fetches approved leads from
-// BUYO and uploads them to Meta CAPI as Purchase events (event_id dedup'd
-// against the original Lead event_id). This lifts Meta optimization quality
-// because the algo now learns "who actually buys", not "who fills the form".
+// Calls https://deflector.savdomix.uz/api/buyo-poll with the X-Cron-Secret
+// header. The poll function fetches approved leads from BUYO and uploads
+// them to Meta CAPI as Purchase events (event_id dedup'd against the
+// original Lead event_id). This lifts Meta optimization quality because
+// the algo now learns "who actually buys", not "who fills the form".
 //
 // Manual health check: fetch the worker URL -> "ok\n"
 // Manual trigger:      fetch the worker URL with ?trigger=1 -> proxies once,
 //                      protected by the same X-Cron-Secret header.
 
-const POLL_URL = 'https://conditioner-deflector-landing.pages.dev/api/buyo-poll';
+const POLL_URL = 'https://deflector.savdomix.uz/api/buyo-poll';
 
 async function pollOnce(env) {
   const t0 = Date.now();
